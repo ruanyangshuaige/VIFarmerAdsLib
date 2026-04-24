@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="lightTransparent">#16000000</color>
+    <color name="colorAds">#068abf</color>
+    <color name="native_bg_btn">#2152FF</color>
+    <color name="color_F8F8F8">#F8F8F8</color>
+</resources>

@@ -1,0 +1,242 @@
+package com.vifarmer.ads.lib.ads.reward_ads;
+
+import android.app.Activity;
+import android.util.Log;
+
+import com.vifarmer.ads.lib.ads.admob.Admob;
+import com.vifarmer.ads.lib.ads.admob.AdmobApi;
+import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
+import com.vifarmer.ads.lib.ads.callback.RewardedCallback;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class RewardManager {
+    private static final String TAG = "RewardManager";
+    public static final Map<String, RewardedAd> listReward = new HashMap<>();
+
+    public static void loadAndShowRewardAds(Activity activity, String adsKey, RewardedCallback rewardedCallback, String remoteKey) {
+        Admob.getInstance().loadAndShowRewardAds(activity, AdmobApi.getInstance().getListIDByName(adsKey), rewardedCallback, remoteKey);
+    }
+
+    public static void loadRewardAds(Activity activity, String adsKey, String remoteKey) {
+        if (listReward.get(adsKey) == null) {
+            Admob.getInstance().loadRewardAds(activity, AdmobApi.getInstance().getListIDByName(adsKey), new RewardedCallback() {
+                @Override
+                public void onAdLoaded(RewardedAd ad) {
+                    super.onAdLoaded(ad);
+                    listReward.put(adsKey, ad);
+                    Log.d(TAG, "onAdLoaded: " + listReward);
+                }
+            }, remoteKey);
+        } else {
+            Log.d(TAG, "Reward already loaded. (Reward != null)");
+        }
+    }
+
+    public static void showRewardAds(Activity activity, String adsKey, String remoteKey, RewardedCallback rewardedCallback, boolean isReloadRewardAfterShow) {
+        Admob.getInstance().showReward(activity, listReward.get(adsKey), new RewardedCallback() {
+            @Override
+            public void onNextAction() {
+                super.onNextAction();
+                rewardedCallback.onNextAction();
+                Log.d(TAG, "onNextAction: " + listReward);
+            }
+
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+                AppOpenManager.isLastActionClickAd = true;
+                rewardedCallback.onAdClicked();
+            }
+
+            @Override
+            public void onAdDismissedFullScreenContent() {
+                super.onAdDismissedFullScreenContent();
+                rewardedCallback.onAdDismissedFullScreenContent();
+            }
+
+            @Override
+            public void onAdFailedToLoad() {
+                super.onAdFailedToLoad();
+                rewardedCallback.onAdFailedToLoad();
+            }
+
+            @Override
+            public void onAdFailedToShowFullScreenContent() {
+                super.onAdFailedToShowFullScreenContent();
+                rewardedCallback.onAdFailedToShowFullScreenContent();
+            }
+
+            @Override
+            public void onAdImpression() {
+                super.onAdImpression();
+                rewardedCallback.onAdImpression();
+            }
+
+            @Override
+            public void onAdLoaded(RewardedAd ad) {
+                super.onAdLoaded(ad);
+                rewardedCallback.onAdLoaded(ad);
+            }
+
+            @Override
+            public void onAdShowedFullScreenContent() {
+                super.onAdShowedFullScreenContent();
+                rewardedCallback.onAdShowedFullScreenContent();
+            }
+
+            @Override
+            public void onUserEarnedReward() {
+                super.onUserEarnedReward();
+                rewardedCallback.onUserEarnedReward();
+            }
+        }, remoteKey);
+        listReward.put(adsKey, null);
+        if (isReloadRewardAfterShow) {
+            loadRewardAds(activity, adsKey, remoteKey);
+        }
+    }
+
+    //ads preloading
+    public static void loadAndShowRewardAdsPreload(Activity activity, String adsKey, String remoteKey, RewardedCallback rewardedCallback) {
+        Admob.getInstance().loadAndCheckRewardPreload(
+                activity,
+                AdmobApi.getInstance().getListIDByName(adsKey),
+                new RewardedCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedAd ad) {
+                        super.onAdLoaded(ad);
+                        showRewardAdPreload(activity, adsKey, remoteKey, rewardedCallback);
+                    }
+
+                    @Override
+                    public void onUserEarnedReward() {
+                        super.onUserEarnedReward();
+                        rewardedCallback.onUserEarnedReward();
+                    }
+
+                    @Override
+                    public void onNextAction() {
+                        super.onNextAction();
+                        rewardedCallback.onNextAction();
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad() {
+                        super.onAdFailedToLoad();
+                        rewardedCallback.onAdFailedToLoad();
+                    }
+
+                    @Override
+                    public void onAdClicked() {
+                        super.onAdClicked();
+                        rewardedCallback.onAdClicked();
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                        rewardedCallback.onAdDismissedFullScreenContent();
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent() {
+                        super.onAdFailedToShowFullScreenContent();
+                        rewardedCallback.onAdFailedToShowFullScreenContent();
+                    }
+
+                    @Override
+                    public void onAdImpression() {
+                        super.onAdImpression();
+                        rewardedCallback.onAdImpression();
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        super.onAdShowedFullScreenContent();
+                        rewardedCallback.onAdShowedFullScreenContent();
+                    }
+                },
+                remoteKey
+        );
+    }
+
+    public static void loadRewardAdPreload(Activity activity, String adsKey, String remoteKey) {
+        Admob.getInstance().loadRewardAdPreload(
+                activity,
+                AdmobApi.getInstance().getListIDByName(adsKey),
+                new RewardedCallback() {
+                    @Override
+                    public void onAdLoaded(RewardedAd ad) {
+                        super.onAdLoaded(ad);
+                    }
+                },
+                remoteKey
+        );
+    }
+
+    public static void showRewardAdPreload(Activity activity, String adsKey, String remoteKey, RewardedCallback rewardedCallback) {
+        Admob.getInstance().showRewardAdPreload(
+                activity,
+                AdmobApi.getInstance().getListIDByName(adsKey),
+                new RewardedCallback() {
+                    @Override
+                    public void onNextAction() {
+                        super.onNextAction();
+                        rewardedCallback.onNextAction();
+                    }
+
+                    @Override
+                    public void onAdClicked() {
+                        super.onAdClicked();
+                        rewardedCallback.onAdClicked();
+                    }
+
+                    @Override
+                    public void onAdDismissedFullScreenContent() {
+                        super.onAdDismissedFullScreenContent();
+                        rewardedCallback.onAdDismissedFullScreenContent();
+                    }
+
+                    @Override
+                    public void onAdFailedToLoad() {
+                        super.onAdFailedToLoad();
+                        rewardedCallback.onAdFailedToLoad();
+                    }
+
+                    @Override
+                    public void onAdFailedToShowFullScreenContent() {
+                        super.onAdFailedToShowFullScreenContent();
+                        rewardedCallback.onAdFailedToShowFullScreenContent();
+                    }
+
+                    @Override
+                    public void onAdImpression() {
+                        super.onAdImpression();
+                        rewardedCallback.onAdImpression();
+                    }
+
+                    @Override
+                    public void onAdLoaded(RewardedAd ad) {
+                        super.onAdLoaded(ad);
+                        rewardedCallback.onAdLoaded(ad);
+                    }
+
+                    @Override
+                    public void onAdShowedFullScreenContent() {
+                        super.onAdShowedFullScreenContent();
+                        rewardedCallback.onAdShowedFullScreenContent();
+                    }
+
+                    @Override
+                    public void onUserEarnedReward() {
+                        super.onUserEarnedReward();
+                        rewardedCallback.onUserEarnedReward();
+                    }
+                }, remoteKey
+        );
+    }
+
+}
