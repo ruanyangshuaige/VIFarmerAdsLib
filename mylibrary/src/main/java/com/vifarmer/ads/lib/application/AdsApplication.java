@@ -21,16 +21,8 @@ public abstract class AdsApplication extends Application implements Application.
     public void onCreate() {
         super.onCreate();
         Admob.getInstance().setTimeStart(System.currentTimeMillis());
-        initAdmob();
         setUpAdjust();
         registerActivityLifecycleCallbacks(this);
-    }
-
-    private void initAdmob(){
-        MobileAds.initialize(this, initializationStatus -> {
-            Log.d("Admob", "initAdmob: application - " + initializationStatus.getAdapterStatusMap());
-            Admob.getInstance().setIsInitAdmobDone(true);
-        });
     }
 
     private void setUpAdjust() {

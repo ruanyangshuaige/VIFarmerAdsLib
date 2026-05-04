@@ -32,6 +32,7 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
+import com.google.android.gms.ads.MobileAds;
 import com.vifarmer.ads.lib.Utils.AdjustUtil;
 import com.vifarmer.ads.lib.Utils.EventTrackingHelper;
 import com.vifarmer.ads.lib.Utils.NetworkUtil;
@@ -142,14 +143,14 @@ public class Admob {
     public void initAdmob(Activity activity, IOnInitAdmobDone iOnInitAdmobDone) {
         resetVariable();
         initLoadingDialog(activity);
-//        new Thread(() -> {
-//            // Initialize the Google Mobile Ads SDK on a background thread.
-//            MobileAds.initialize(activity, initializationStatus -> {
-//                Log.d(TAG, "initAdmob: " + initializationStatus.getAdapterStatusMap());
-//                setIsInitAdmobDone(true);
-//                iOnInitAdmobDone.onInitAdmobDone();
-//            });
-//        }).start();
+        new Thread(() -> {
+            // Initialize the Google Mobile Ads SDK on a background thread.
+            MobileAds.initialize(activity.getApplicationContext(), initializationStatus -> {
+                Log.d(TAG, "initAdmob: " + initializationStatus.getAdapterStatusMap());
+                setIsInitAdmobDone(true);
+                iOnInitAdmobDone.onInitAdmobDone();
+            });
+        }).start();
     }
 
     private void resetVariable() {
