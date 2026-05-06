@@ -30,10 +30,10 @@ public abstract class AdsApplication extends Application implements Application.
 
     private void setUpAdjust() {
         String environment;
-        if (buildDebug() == null || !buildDebug()) {
-            environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
-        } else {
+        if (buildDebug() != null && buildDebug()) {
             environment = AdjustConfig.ENVIRONMENT_SANDBOX;
+        } else {
+            environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
         }
         AdjustConfig config = new AdjustConfig(this, getAppTokenAdjust(), environment);
         config.setLogLevel(LogLevel.VERBOSE);
