@@ -369,6 +369,11 @@ public class Admob {
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                        //Tracking revenue
+                        interstitialAd.setOnPaidEventListener(adValue -> {
+                            //Adjust
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
                         interCallback.onAdLoaded(interstitialAd);
@@ -377,11 +382,6 @@ public class Admob {
                             dismissLoadingDialog();
                         }
                         showInterAdsLoadAndShow(activity, interstitialAd, interCallback, remoteKey);
-                        //Tracking revenue
-                        interstitialAd.setOnPaidEventListener(adValue -> {
-                            //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                        });
                         removeHandlerInterAds();
                     }
 

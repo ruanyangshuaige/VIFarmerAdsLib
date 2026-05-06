@@ -10,9 +10,13 @@ import androidx.annotation.Nullable;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustConfig;
+import com.adjust.sdk.AdjustEventFailure;
+import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.LogLevel;
+import com.adjust.sdk.OnEventTrackingFailedListener;
+import com.adjust.sdk.OnEventTrackingSucceededListener;
+import com.vifarmer.ads.lib.BuildConfig;
 import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.google.android.gms.ads.MobileAds;
 
 public abstract class AdsApplication extends Application implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "AdsApplication";
@@ -27,12 +31,28 @@ public abstract class AdsApplication extends Application implements Application.
 
     private void setUpAdjust() {
         String environment;
-        environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
+        if (buildDebug()) {
+            environment = AdjustConfig.ENVIRONMENT_SANDBOX;
+        } else {
+            environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
+        }
         AdjustConfig config = new AdjustConfig(this, getAppTokenAdjust(), environment);
         config.setLogLevel(LogLevel.VERBOSE);
         config.setFbAppId(getFacebookID());
         config.setDefaultTracker(getAppTokenAdjust());
         config.enableSendingInBackground();
+        config.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
+            @Override
+            public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
+                Log.d("AdjustRevenue", "onEventTrackingSucceeded: " + adjustEventSuccess);
+            }
+        });
+        config.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
+            @Override
+            public void onEventTrackingFailed(AdjustEventFailure adjustEventFailure) {
+                Log.d("AdjustRevenue", "onEventTrackingFailed: " + adjustEventFailure);
+            }
+        });
         Adjust.initSdk(config);
         // Enable the SDK
         Adjust.enable();
@@ -79,5 +99,5 @@ public abstract class AdsApplication extends Application implements Application.
     @NonNull
     public abstract String getFacebookID();
 
-    //public abstract Boolean buildDebug();
+    public abstract Boolean buildDebug();
 }

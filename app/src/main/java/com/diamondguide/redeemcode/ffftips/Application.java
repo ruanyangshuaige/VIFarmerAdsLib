@@ -11,18 +11,23 @@ public class Application extends AdsApplication {
     public void onCreate() {
         super.onCreate();
         AppOpenManager.getInstance().disableAppResumeWithActivity(SplashActivity.class);
-        Admob.getInstance().setTokenEventAdjust("xxxxxx");
+        Admob.getInstance().setTokenEventAdjust("");
     }
 
     @NonNull
     @Override
     public String getAppTokenAdjust() {
-        return null;
+        return "";
     }
 
     @NonNull
     @Override
     public String getFacebookID() {
-        return null;
+        return "";
+    }
+
+    @Override
+    public Boolean buildDebug() {
+        return false;
     }
 }
