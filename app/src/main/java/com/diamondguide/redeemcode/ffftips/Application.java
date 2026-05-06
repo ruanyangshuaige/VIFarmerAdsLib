@@ -28,6 +28,6 @@ public class Application extends AdsApplication {
 
     @Override
     public Boolean buildDebug() {
-        return false;
+        return null;
     }
 }

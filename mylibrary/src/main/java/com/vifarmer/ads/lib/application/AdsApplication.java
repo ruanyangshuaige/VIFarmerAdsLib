@@ -15,7 +15,6 @@ import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.LogLevel;
 import com.adjust.sdk.OnEventTrackingFailedListener;
 import com.adjust.sdk.OnEventTrackingSucceededListener;
-import com.vifarmer.ads.lib.BuildConfig;
 import com.vifarmer.ads.lib.ads.admob.Admob;
 
 public abstract class AdsApplication extends Application implements Application.ActivityLifecycleCallbacks {
@@ -31,10 +30,10 @@ public abstract class AdsApplication extends Application implements Application.
 
     private void setUpAdjust() {
         String environment;
-        if (buildDebug()) {
-            environment = AdjustConfig.ENVIRONMENT_SANDBOX;
-        } else {
+        if (buildDebug() == null || !buildDebug()) {
             environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
+        } else {
+            environment = AdjustConfig.ENVIRONMENT_SANDBOX;
         }
         AdjustConfig config = new AdjustConfig(this, getAppTokenAdjust(), environment);
         config.setLogLevel(LogLevel.VERBOSE);
