@@ -11,6 +11,8 @@ import androidx.lifecycle.LifecycleOwnerKt;
 import com.vifarmer.ads.lib.ads.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.callback.AppOpenCallback;
 import com.vifarmer.ads.lib.ads.callback.InterCallback;
+import com.vifarmer.ads.lib.ads.iap.IAPManager;
+import com.vifarmer.ads.lib.ads.iap.ProductDetailCustom;
 import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 /*import com.amazic.library.iap.IAPManager;

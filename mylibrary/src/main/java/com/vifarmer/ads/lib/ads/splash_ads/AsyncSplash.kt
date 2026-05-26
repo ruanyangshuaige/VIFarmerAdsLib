@@ -10,6 +10,7 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
+import com.vifarmer.ads.lib.R
 import com.vifarmer.ads.lib.Utils.EventTrackingHelper
 import com.vifarmer.ads.lib.Utils.EventTrackingHelper.time_splash_check
 import com.vifarmer.ads.lib.Utils.NetworkUtil
@@ -24,12 +25,11 @@ import com.vifarmer.ads.lib.ads.callback.ApiCallback
 import com.vifarmer.ads.lib.ads.callback.AppOpenCallback
 import com.vifarmer.ads.lib.ads.callback.BannerCallback
 import com.vifarmer.ads.lib.ads.callback.InterCallback
-/*import com.amazic.library.iap.BillingCallback
-import com.amazic.library.iap.IAPManager
-import com.amazic.library.iap.ProductDetailCustom*/ //comment for billing
+import com.vifarmer.ads.lib.ads.iap.BillingCallback
+import com.vifarmer.ads.lib.ads.iap.IAPManager
+import com.vifarmer.ads.lib.ads.iap.ProductDetailCustom
 import com.vifarmer.ads.lib.organic.TechManager
 import com.vifarmer.ads.lib.ump.AdsConsentManager
-import com.vifarmer.ads.lib.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -69,7 +69,8 @@ class AsyncSplash {
     private var isDebug = false
     private var isUseBilling = false
 
-    //private var listProductDetailCustoms: ArrayList<ProductDetailCustom> = arrayListOf() //comment for billing
+    private var listProductDetailCustoms: ArrayList<ProductDetailCustom> =
+        arrayListOf() //comment for billing
     private var timeOutSplash = 12000L
     private var isLoopAdsSplash = false
     private var useTechManagerOrDetectTestAd = DETECT_TEST_AD
@@ -218,7 +219,7 @@ class AsyncSplash {
         this.listTurnOffRemoteKeys = mutableListOf()
         this.isDebug = false
         this.isUseBilling = false
-        //this.listProductDetailCustoms = arrayListOf() //comment for billing
+        this.listProductDetailCustoms = arrayListOf() //comment for billing
         this.timeOutSplash = 12000L
         this.isLoopAdsSplash = false
         this.useTechManagerOrDetectTestAd = DETECT_TEST_AD
@@ -322,7 +323,8 @@ class AsyncSplash {
     }
 
     fun setKeyNumberPreloading(keyNumber: String) {
-        var number: Int = RemoteConfigHelper.getInstance().get_config_long(activity, keyNumber).toInt()
+        var number: Int =
+            RemoteConfigHelper.getInstance().get_config_long(activity, keyNumber).toInt()
         this.numberPreloading = number
     }
 
@@ -330,11 +332,11 @@ class AsyncSplash {
         return this.numberPreloading
     }
 
-    fun setNumberPreloadingSplash(number: Int){
+    fun setNumberPreloadingSplash(number: Int) {
         this.numberPreloadingSplash = number
     }
 
-    fun getNumberPreloadingSplash(): Int{
+    fun getNumberPreloadingSplash(): Int {
         return this.numberPreloadingSplash
     }
 
@@ -400,11 +402,11 @@ class AsyncSplash {
         this.timeOutSplash = timeOutSplash
     }
 
-    /*fun setUseBilling(listProductDetailCustoms: ArrayList<ProductDetailCustom>) { //If need use IAP
+    fun setUseBilling(listProductDetailCustoms: ArrayList<ProductDetailCustom>) { //If need use IAP
         this.isUseBilling = true
         this.listProductDetailCustoms.clear()
         this.listProductDetailCustoms.addAll(listProductDetailCustoms)
-    }*/ //comment for billing
+    } //comment for billing
 
     fun setDebug(isDebug: Boolean) { //Use for TechManager or DetectTestAd
         this.isDebug = isDebug
@@ -998,7 +1000,7 @@ class AsyncSplash {
         }
     }
 
-    private fun loadAdPreloadResume(){
+    private fun loadAdPreloadResume() {
         if (isUseAdPreloading) {
             val listIdResume = mutableListOf<String>()
             if (keyAdsOpenResume.isNotEmpty()) {
@@ -1022,35 +1024,36 @@ class AsyncSplash {
     }
 
     private suspend fun initBilling() = suspendCoroutine<Unit> { continuation ->
-        /*if (isUseBilling) {
+        if (isUseBilling) {
             //check if app use billing -> initBilling
-            IAPManager.getInstance().initBilling(activity, listProductDetailCustoms, object : BillingCallback() {
-                private var isResumed = false
-                override fun onBillingSetupFinished(resultCode: Int) {
-                    super.onBillingSetupFinished(resultCode)
-                    if (!isResumed) {
-                        isResumed = true
-                        continuation.resume(Unit)
-                        initBilling = true
-                        Log.d(TAG, "initBilling.")
+            IAPManager.getInstance()
+                .initBilling(activity, listProductDetailCustoms, object : BillingCallback() {
+                    private var isResumed = false
+                    override fun onBillingSetupFinished(resultCode: Int) {
+                        super.onBillingSetupFinished(resultCode)
+                        if (!isResumed) {
+                            isResumed = true
+                            continuation.resume(Unit)
+                            initBilling = true
+                            Log.d(TAG, "initBilling.")
+                        }
                     }
-                }
 
-                override fun onBillingServiceDisconnected() {
-                    super.onBillingServiceDisconnected()
-                    if (!isResumed) {
-                        isResumed = true
-                        continuation.resume(Unit)
-                        initBilling = true
-                        Log.d(TAG, "initBillingFail.")
+                    override fun onBillingServiceDisconnected() {
+                        super.onBillingServiceDisconnected()
+                        if (!isResumed) {
+                            isResumed = true
+                            continuation.resume(Unit)
+                            initBilling = true
+                            Log.d(TAG, "initBillingFail.")
+                        }
                     }
-                }
-            })
-        } else {*/ //comment for billing
-        continuation.resume(Unit)
-        initBilling = true
-        Log.d(TAG, "Not use billing.")
-        //} //comment for billing
+                })
+        } else { //comment for billing
+            continuation.resume(Unit)
+            initBilling = true
+            Log.d(TAG, "Not use billing.")
+        } //comment for billing
     }
 
     private fun loadBannerSplash(
