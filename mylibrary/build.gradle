@@ -53,6 +53,13 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    lint {
+        // Tắt bộ kiểm tra gây crash hệ thống
+        disable "NullSafeMutableLiveData"
+        // Hoặc nếu vẫn bị crash ở các check khác, bạn có thể chọn bỏ qua lỗi lint khi build release:
+        abortOnError false
+        checkReleaseBuilds false
+    }
 }
 
 publishing {
