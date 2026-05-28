@@ -73,7 +73,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-process:2.9.1'
+    implementation 'androidx.lifecycle:lifecycle-process:2.10.0'
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'com.google.android.play:review:2.0.2'
     implementation 'com.google.android.play:app-update:2.1.0'
@@ -91,7 +91,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
     //ads
-    implementation 'com.google.android.gms:play-services-ads:25.2.0'
+    implementation 'com.google.android.gms:play-services-ads:25.3.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
     implementation 'com.google.android.gms:play-services-appset:16.1.0'
     //implementation 'com.google.android.gms:play-services-basement:18.7.0'
@@ -109,6 +109,6 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
     implementation 'com.airbnb.android:lottie:6.7.1'
     //billing
-    implementation "com.android.billingclient:billing:8.3.0"
+    implementation "com.android.billingclient:billing:9.0.0"
     implementation 'com.google.guava:guava:33.6.0-jre'
 }
