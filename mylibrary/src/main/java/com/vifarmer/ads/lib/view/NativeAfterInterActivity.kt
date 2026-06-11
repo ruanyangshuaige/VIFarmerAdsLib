@@ -58,6 +58,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
 
                 override fun onFail() {
                     Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
+                    interCallback?.onNextAction()
                     finish()
                 }
             }
