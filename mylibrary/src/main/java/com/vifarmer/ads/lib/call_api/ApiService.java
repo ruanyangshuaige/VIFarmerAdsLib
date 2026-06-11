@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.call_api;
+package com.vifarmer.ads.lib.call_api;
 
 import java.util.List;
 

@@ -12,9 +12,9 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.admob.admob_interface.IOnAdsFailToLoad;
-import com.vifarmer.ads.lib.ads.admob.admob_interface.IOnAdsImpression;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.admob.admob_interface.IOnAdsFailToLoad;
+import com.vifarmer.ads.lib.admob.admob_interface.IOnAdsImpression;
 import com.google.android.gms.ads.AdView;
 
 public class CollapseBannerManager implements LifecycleEventObserver {

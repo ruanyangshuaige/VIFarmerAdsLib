@@ -4,11 +4,11 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.callback.AppOpenCallback;
-import com.vifarmer.ads.lib.ads.callback.InterCallback;
+import com.vifarmer.ads.lib.callback.AppOpenCallback;
+import com.vifarmer.ads.lib.callback.InterCallback;
 
 import java.util.Random;
 

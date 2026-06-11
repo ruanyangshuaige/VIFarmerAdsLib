@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.callback;
+package com.vifarmer.ads.lib.callback;
 
 public class BannerCallback {
     public void onAdClicked() {

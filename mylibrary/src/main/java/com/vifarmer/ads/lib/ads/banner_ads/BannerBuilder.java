@@ -5,7 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.vifarmer.ads.lib.ads.callback.BannerCallback;
+import com.vifarmer.ads.lib.callback.BannerCallback;
 import com.vifarmer.ads.lib.R;
 import com.google.android.gms.ads.AdView;
 

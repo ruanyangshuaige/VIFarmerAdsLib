@@ -8,7 +8,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
+import com.vifarmer.ads.lib.admob.Admob;
 import com.vifarmer.ads.lib.R;
 import com.vifarmer.ads.lib.databinding.DialogLoadingAdsBinding;
 

@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.admob;
+package com.vifarmer.ads.lib.admob;
 
 import static com.vifarmer.ads.lib.Utils.EventTrackingHelper.time_splash_loading_ad_show;
 import static com.vifarmer.ads.lib.Utils.EventTrackingHelper.time_splash_loading_show;
@@ -32,30 +32,6 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ProcessLifecycleOwner;
 
-import com.google.android.gms.ads.MobileAds;
-import com.vifarmer.ads.lib.Utils.AdjustUtil;
-import com.vifarmer.ads.lib.Utils.EventTrackingHelper;
-import com.vifarmer.ads.lib.Utils.NetworkUtil;
-import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
-import com.vifarmer.ads.lib.Utils.SharePreferenceHelper;
-import com.vifarmer.ads.lib.ads.admob.admob_interface.IOnAdsFailToLoad;
-import com.vifarmer.ads.lib.ads.admob.admob_interface.IOnAdsImpression;
-import com.vifarmer.ads.lib.ads.admob.admob_interface.IOnInitAdmobDone;
-import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.callback.BannerCallback;
-import com.vifarmer.ads.lib.ads.callback.InterCallback;
-import com.vifarmer.ads.lib.ads.callback.NativeCallback;
-import com.vifarmer.ads.lib.ads.callback.RewardedCallback;
-import com.vifarmer.ads.lib.ads.callback.RewardedInterCallback;
-import com.vifarmer.ads.lib.ads.collapse_banner_ads.CollapseBannerHelper;
-import com.vifarmer.ads.lib.ads.iap.IAPManager;
-import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
-import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
-import com.vifarmer.ads.lib.dialog.LoadingAdsDialog;
-import com.vifarmer.ads.lib.organic.TechManager;
-import com.vifarmer.ads.lib.ump.AdsConsentManager;
-import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
-import com.vifarmer.ads.lib.R;
 import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.AdListener;
@@ -65,6 +41,7 @@ import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.ResponseInfo;
 import com.google.android.gms.ads.VideoController;
 import com.google.android.gms.ads.VideoOptions;
@@ -82,6 +59,29 @@ import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.gms.ads.rewarded.RewardedAdPreloader;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+import com.vifarmer.ads.lib.R;
+import com.vifarmer.ads.lib.Utils.AdjustUtil;
+import com.vifarmer.ads.lib.Utils.EventTrackingHelper;
+import com.vifarmer.ads.lib.Utils.NetworkUtil;
+import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
+import com.vifarmer.ads.lib.Utils.SharePreferenceHelper;
+import com.vifarmer.ads.lib.admob.admob_interface.IOnAdsFailToLoad;
+import com.vifarmer.ads.lib.admob.admob_interface.IOnAdsImpression;
+import com.vifarmer.ads.lib.admob.admob_interface.IOnInitAdmobDone;
+import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
+import com.vifarmer.ads.lib.ads.collapse_banner_ads.CollapseBannerHelper;
+import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
+import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
+import com.vifarmer.ads.lib.callback.BannerCallback;
+import com.vifarmer.ads.lib.callback.InterCallback;
+import com.vifarmer.ads.lib.callback.NativeCallback;
+import com.vifarmer.ads.lib.callback.RewardedCallback;
+import com.vifarmer.ads.lib.callback.RewardedInterCallback;
+import com.vifarmer.ads.lib.dialog.LoadingAdsDialog;
+import com.vifarmer.ads.lib.iap.IAPManager;
+import com.vifarmer.ads.lib.organic.TechManager;
+import com.vifarmer.ads.lib.ump.AdsConsentManager;
+import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -106,6 +106,7 @@ public class Admob {
     private String tokenEventAdjust = "";
     private final Handler handlerTimeoutSplash = new Handler(Looper.getMainLooper());
     private final Handler handlerTimeoutInter = new Handler(Looper.getMainLooper());
+    private final Handler handlerTimeoutReward = new Handler(Looper.getMainLooper());
     private Runnable runnable;
     private boolean isSplashResume = true;
     private boolean openActivityAfterShowInterAds = true;
@@ -114,11 +115,13 @@ public class Admob {
     private NativeAd myNativeAd = null;
     private int timeOutCallSplashAds = 12000;
     private int timeOutCallInterAds = 12000;
+    private int timeOutCallRewardAds = 12000;
     //Log event 26/04/2025
     private long timeSplashLoadingAdShow = 0;
     //fix event time_splash_loading_show
     private boolean isLoadInterSplashIdTimeout = false;
     private boolean isLoadInterAdsIdTimeout = false;
+    private boolean isLoadRewardAdsIdTimeout = false;
     public int timeHttpInter = -1;
     public int timeHttpNative = -1;
     public int timeHttpBanner = -1;
@@ -146,7 +149,7 @@ public class Admob {
         initLoadingDialog(activity);
         new Thread(() -> {
             // Initialize the Google Mobile Ads SDK on a background thread.
-            MobileAds.initialize(activity.getApplicationContext(), initializationStatus -> {
+            MobileAds.initialize(activity, initializationStatus -> {
                 Log.d(TAG, "initAdmob: " + initializationStatus.getAdapterStatusMap());
                 setIsInitAdmobDone(true);
                 iOnInitAdmobDone.onInitAdmobDone();
@@ -223,11 +226,11 @@ public class Admob {
         this.timeOutCallSplashAds = timeOutCallSplashAds;
     }
 
-    public int getTimeDelayAdsSplash() {
+    public int getTimeDelayNativeSplash() {
         return timeDelayAdsSplash;
     }
 
-    public void setTimeDelayAdsSplash(int timeDelay) {
+    public void setTimeDelayNativeSplash(int timeDelay) {
         this.timeDelayAdsSplash = timeDelay;
     }
 
@@ -311,6 +314,13 @@ public class Admob {
         }
     }
 
+    public void removeHandlerRewardAds() {
+        if (handlerTimeoutReward != null && runnable != null) {
+            handlerTimeoutReward.removeCallbacks(runnable);
+            handlerTimeoutReward.removeCallbacksAndMessages(null);
+        }
+    }
+
     private void dismissLoadingDialog() {
         try {
             loadingAdsDialog.dismiss();
@@ -373,7 +383,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), remoteKey);
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -544,7 +554,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), remoteKeyInter);
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -802,7 +812,7 @@ public class Admob {
         if (ad != null) {
             ad.setOnPaidEventListener(
                     adValue -> {
-                        AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInter.get(0), remoteKey);
                     }
             );
 
@@ -1036,7 +1046,7 @@ public class Admob {
                     }
 
                     if (isFirstLoadAd.getAndSet(false)) {
-                        Log.d(TAG, "INTER Ad Preload - loadAndShow: onAdFailedToPreload - getShowNativeAfterInter = " +AsyncSplash.Companion.getInstance().getShowNativeAfterInter());
+                        Log.d(TAG, "INTER Ad Preload - loadAndShow: onAdFailedToPreload - getShowNativeAfterInter = " + AsyncSplash.Companion.getInstance().getShowNativeAfterInter());
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
                                 Log.d(TAG, "INTER Ad Preload - loadAndShow: onAdFailedToPreload - show Native after inter");
@@ -1123,14 +1133,19 @@ public class Admob {
         handlerTimeoutSplash.postDelayed(runnable, timeOutCallSplashAds);
 
         //delay ads splash
-        timerDelayRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "AdsSplash Inter preload: Đã đủ 7 giây đếm ngược.");
-                isTimerDelayFinished = true;
-                checkConditionAdPreloadingSplash(activity, listIdInterTemp, interCallback, isConfigShowNativeAfterInter, isEmptyListNativeAfterInter, adsKeyNative);
-            }
-        };
+        if (AsyncSplash.Companion.getInstance().getUseNativeSplash()) {
+            timerDelayRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "AdsSplash Inter preload: Đã đủ 7 giây đếm ngược.");
+                    isTimerDelayFinished = true;
+                    checkConditionAdPreloadingSplash(activity, listIdInterTemp, interCallback, isConfigShowNativeAfterInter, isEmptyListNativeAfterInter, adsKeyNative);
+                }
+            };
+        } else {
+            Log.d(TAG, "AdsSplash Inter preload: không dùng chờ 7 giây đếm ngược.");
+            isTimerDelayFinished = true;
+        }
         handlerDelayAdsSplash.postDelayed(timerDelayRunnable, timeDelayAdsSplash);
         //end
 
@@ -1274,7 +1289,7 @@ public class Admob {
             new Handler(Looper.getMainLooper()).postDelayed(() -> {
                 ad.setOnPaidEventListener(
                         adValue -> {
-                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInter.get(0), "inter_splash_preloading");
                         }
                 );
 
@@ -1467,7 +1482,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), remoteKey);
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -2099,7 +2114,7 @@ public class Admob {
                             //Tracking revenue
                             interstitialAd.setOnPaidEventListener(adValue -> {
                                 //Adjust
-                                AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                                AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), "inter_splash");
                             });
                             Log.i(TAG, "SPLASH ID ASYNC: Ad was loaded inter splash. " + listIdInterTemp.get(index));
                             interCallback.onAdLoaded(interstitialAd);
@@ -2197,7 +2212,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), "inter_splash");
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -2258,14 +2273,19 @@ public class Admob {
         handlerTimeoutSplash.postDelayed(runnable, timeOutCallSplashAds);
 
         //delay ads splash
-        timerDelayRunnable = new Runnable() {
-            @Override
-            public void run() {
-                Log.d(TAG, "Đã đủ 7 giây đếm ngược.");
-                isTimerDelayFinished = true;
-                checkConditionAdsSplash(activity, interCallback, isConfigShowNativeAfterInter, isEmptyListNativeAfterInter);
-            }
-        };
+        if (AsyncSplash.Companion.getInstance().getUseNativeSplash()) {
+            timerDelayRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "Đã đủ 7 giây đếm ngược.");
+                    isTimerDelayFinished = true;
+                    checkConditionAdsSplash(activity, interCallback, isConfigShowNativeAfterInter, isEmptyListNativeAfterInter);
+                }
+            };
+        } else {
+            Log.d(TAG, "Không dùng chờ 7 giây đếm ngược.");
+            isTimerDelayFinished = true;
+        }
         handlerDelayAdsSplash.postDelayed(timerDelayRunnable, timeDelayAdsSplash);
         //end
 
@@ -2309,7 +2329,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), "inter_splash");
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -2438,7 +2458,7 @@ public class Admob {
                         //Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
                             //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInter.get(0), "inter_splash");
                         });
                         // The mInterstitialAd reference will be null until
                         // an ad is loaded.
@@ -2544,6 +2564,13 @@ public class Admob {
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
+                //Tracking revenue
+                adView.setOnPaidEventListener(adValue -> {
+                    //Adjust
+                    if (adView.getResponseInfo() != null) {
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdBannerTemp.get(0), remoteKey);
+                    }
+                });
                 Log.i(TAG, "BANNER: onAdLoaded. " + remoteKey);
 
                 //DetectTestAd
@@ -2567,13 +2594,6 @@ public class Admob {
                     }
                 }
 
-                //Tracking revenue
-                adView.setOnPaidEventListener(adValue -> {
-                    //Adjust
-                    if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                    }
-                });
                 bannerCallback.onAdLoaded();
             }
 
@@ -2662,7 +2682,7 @@ public class Admob {
                 adView.setOnPaidEventListener(adValue -> {
                     //Adjust
                     if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdBannerTemp.get(0), remoteKey);
                     }
                 });
                 Log.i(TAG, "BANNER: onAdLoaded. " + remoteKey);
@@ -2786,7 +2806,7 @@ public class Admob {
                 adView.setOnPaidEventListener(adValue -> {
                     //Adjust
                     if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdBannerTemp.get(0), remoteKey);
                     }
                 });
                 Log.i(TAG, "BANNER: onAdLoaded. " + remoteKey);
@@ -2930,7 +2950,7 @@ public class Admob {
                 adView.setOnPaidEventListener(adValue -> {
                     //Adjust
                     if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdBannerTemp.get(0), remoteKey);
                     }
                 });
                 Log.i(TAG, "BANNER: onAdLoaded. " + remoteKey);
@@ -3065,7 +3085,7 @@ public class Admob {
                 adView.setOnPaidEventListener(adValue -> {
                     //Adjust
                     if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdCollapseBannerTemp.get(0), remoteKey);
                     }
                 });
                 Log.i(TAG, "COLLAPSE BANNER: onAdLoaded. " + remoteKey);
@@ -3184,7 +3204,7 @@ public class Admob {
                 adView.setOnPaidEventListener(adValue -> {
                     //Adjust
                     if (adView.getResponseInfo() != null) {
-                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdCollapseBannerTemp.get(0), remoteKey);
                     }
                 });
                 Log.i(TAG, "COLLAPSE BANNER: onAdLoaded. " + remoteKey);
@@ -3316,15 +3336,15 @@ public class Admob {
 
         AdLoader.Builder builder = new AdLoader.Builder(activity, listIdNativeTemp.get(0));
         builder.forNativeAd(nativeAd -> {
-            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
-            nativeCallback.onNativeAdLoaded(nativeAd);
             //Tracking revenue
             nativeAd.setOnPaidEventListener(adValue -> {
                 //Adjust
                 if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
                 }
             });
+            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
+            nativeCallback.onNativeAdLoaded(nativeAd);
         });
 
         VideoOptions videoOptions =
@@ -3389,15 +3409,15 @@ public class Admob {
 
         AdLoader.Builder builder = new AdLoader.Builder(activity, listIdNativeTemp.get(0));
         builder.forNativeAd(nativeAd -> {
-            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
-            nativeCallback.onNativeAdLoaded(nativeAd);
             //Tracking revenue
             nativeAd.setOnPaidEventListener(adValue -> {
                 //Adjust
                 if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
                 }
             });
+            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
+            nativeCallback.onNativeAdLoaded(nativeAd);
         });
 
         VideoOptions videoOptions =
@@ -3463,15 +3483,15 @@ public class Admob {
 
         AdLoader.Builder builder = new AdLoader.Builder(activity, listIdNativeTemp.get(0));
         builder.forNativeAd(nativeAd -> {
-            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
-            nativeCallback.onNativeAdLoaded(nativeAd);
             //Tracking revenue
             nativeAd.setOnPaidEventListener(adValue -> {
                 //Adjust
                 if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
                 }
             });
+            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
+            nativeCallback.onNativeAdLoaded(nativeAd);
         });
 
         VideoOptions videoOptions =
@@ -3535,15 +3555,15 @@ public class Admob {
 
         AdLoader.Builder builder = new AdLoader.Builder(activity, idNative);
         builder.forNativeAd(nativeAd -> {
-            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
-            nativeCallback.onNativeAdLoaded(nativeAd);
             //Tracking revenue
             nativeAd.setOnPaidEventListener(adValue -> {
                 //Adjust
                 if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, idNative, remoteKey);
                 }
             });
+            Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
+            nativeCallback.onNativeAdLoaded(nativeAd);
         });
 
         VideoOptions videoOptions =
@@ -3615,6 +3635,13 @@ public class Admob {
         AdLoader.Builder builder = new AdLoader.Builder(context, listIdNativeTemp.get(0));
         // OnLoadedListener implementation.
         builder.forNativeAd(nativeAd -> {
+            //Tracking revenue
+            nativeAd.setOnPaidEventListener(adValue -> {
+                //Adjust
+                if (nativeAd.getResponseInfo() != null) {
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
+                }
+            });
             myNativeAd = nativeAd;
             Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
             nativeCallback.onNativeAdLoaded(nativeAd);
@@ -3635,13 +3662,6 @@ public class Admob {
                     adContainerView.addView(adView);
                 }
             }
-            //Tracking revenue
-            nativeAd.setOnPaidEventListener(adValue -> {
-                //Adjust
-                if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                }
-            });
         });
 
         VideoOptions videoOptions =
@@ -3724,6 +3744,13 @@ public class Admob {
         AdLoader.Builder builder = new AdLoader.Builder(context, listIdNativeTemp.get(0));
         // OnLoadedListener implementation.
         builder.forNativeAd(nativeAd -> {
+            //Tracking revenue
+            nativeAd.setOnPaidEventListener(adValue -> {
+                //Adjust
+                if (nativeAd.getResponseInfo() != null) {
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
+                }
+            });
             myNativeAd = nativeAd;
             Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
             nativeCallback.onNativeAdLoaded(nativeAd);
@@ -3745,13 +3772,6 @@ public class Admob {
                 }
                 nativeCallback.onAdShown(adView);
             }
-            //Tracking revenue
-            nativeAd.setOnPaidEventListener(adValue -> {
-                //Adjust
-                if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                }
-            });
         });
 
         VideoOptions videoOptions =
@@ -3829,6 +3849,13 @@ public class Admob {
         AdLoader.Builder builder = new AdLoader.Builder(context, idNative);
         // OnLoadedListener implementation.
         builder.forNativeAd(nativeAd -> {
+            //Tracking revenue
+            nativeAd.setOnPaidEventListener(adValue -> {
+                //Adjust
+                if (nativeAd.getResponseInfo() != null) {
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, idNative, remoteKey);
+                }
+            });
             myNativeAd = nativeAd;
             Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
             nativeCallback.onNativeAdLoaded(nativeAd);
@@ -3850,13 +3877,6 @@ public class Admob {
                 }
                 nativeCallback.onAdShown(adView);
             }
-            //Tracking revenue
-            nativeAd.setOnPaidEventListener(adValue -> {
-                //Adjust
-                if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                }
-            });
         });
 
         VideoOptions videoOptions =
@@ -3930,6 +3950,13 @@ public class Admob {
         AdLoader.Builder builder = new AdLoader.Builder(activity, listIdNativeTemp.get(0));
         // OnLoadedListener implementation.
         builder.forNativeAd(nativeAd -> {
+            //Tracking revenue
+            nativeAd.setOnPaidEventListener(adValue -> {
+                //Adjust
+                if (nativeAd.getResponseInfo() != null) {
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
+                }
+            });
             Log.i(TAG, "NATIVE: onAdLoaded. " + remoteKey);
             nativeCallback.onNativeAdLoaded(nativeAd);
             if (setShowNativeAfterLoaded) {
@@ -3949,13 +3976,6 @@ public class Admob {
                     adContainerView.addView(adView);
                 }
             }
-            //Tracking revenue
-            nativeAd.setOnPaidEventListener(adValue -> {
-                //Adjust
-                if (nativeAd.getResponseInfo() != null) {
-                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
-                }
-            });
         });
 
         VideoOptions videoOptions =
@@ -4196,7 +4216,7 @@ public class Admob {
                         ad.setOnPaidEventListener(adValue -> {
                             //Adjust
                             ad.getResponseInfo();
-                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdRewardedTemp.get(0), remoteKey);
                         });
                         Log.i(TAG, "REWARD: onAdLoaded. " + remoteKey);
                         rewardedCallback.onAdLoaded(ad);
@@ -4314,7 +4334,7 @@ public class Admob {
                         ad.setOnPaidEventListener(adValue -> {
                             //Adjust
                             ad.getResponseInfo();
-                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdRewardedTemp.get(0), remoteKey);
                         });
                         Log.i(TAG, "REWARD: onAdLoaded. " + remoteKey);
                         rewardedCallback.onAdLoaded(ad);
@@ -4400,13 +4420,28 @@ public class Admob {
             String remoteKey
     ) {
         if (listIdRewarded.isEmpty()) {
+            Log.d(TAG, "REWARD Ad Preload - listIdRewarded: empty");
             rewardedCallback.onNextAction();
             return;
         }
 
+        //timeout
+        isLoadRewardAdsIdTimeout = false;
+        runnable = () -> {
+            Log.d(TAG, "REWARD Ad Preload - timeout: " + remoteKey);
+            EventTrackingHelper.logEventWithAParam(activity, EventTrackingHelper.reward_ads_id_timeout, "remoteKey", remoteKey);
+            if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
+                dismissLoadingDialog();
+                rewardedCallback.onNextAction();
+                removeHandlerRewardAds();
+            }
+        };
+        handlerTimeoutReward.postDelayed(runnable, timeOutCallRewardAds);
+        //
         if (RewardedAdPreloader.isAdAvailable(listIdRewarded.get(0))) {
             Log.d(TAG, "REWARD Ad Preload - loadAndShow: HAVE DATA");
             rewardedCallback.onAdLoaded(null);
+            removeHandlerRewardAds();
         } else {
             Log.d(TAG, "REWARD Ad Preload - loadAndShow: NO DATA");
             ArrayList<String> listIdRewardedTemp = new ArrayList<>(listIdRewarded);
@@ -4415,6 +4450,7 @@ public class Admob {
                 Log.d(TAG, "REWARD Ad Preload - loadAndShow: Check condition. RemoteKey:" + remoteKey + "_Network:" + NetworkUtil.isNetworkActive(activity) + "_IdEmpty:" + listIdRewardedTemp.isEmpty() + "_UMP:" + AdsConsentManager.getConsentResult(activity) + "_ShowAllAds:" + isShowAllAds + "_IAP:" + IAPManager.getInstance().isPurchase() + "_RemoteConfig:" + RemoteConfigHelper.getInstance().get_config(activity, remoteKey));
                 rewardedCallback.onAdFailedToLoad();
                 rewardedCallback.onNextAction();
+                removeHandlerRewardAds();
                 return;
             }
             //log event can request ads
@@ -4438,6 +4474,7 @@ public class Admob {
                         dismissLoadingDialog();
                     }
                     rewardedCallback.onNextAction();
+                    removeHandlerRewardAds();
                 }
 
                 @Override
@@ -4449,6 +4486,7 @@ public class Admob {
 
                     if (isFirstLoadAd.getAndSet(false)) {
                         rewardedCallback.onAdLoaded(null);
+                        removeHandlerRewardAds();
                     }
                 }
 
@@ -4517,7 +4555,7 @@ public class Admob {
             ad.setOnPaidEventListener(
                     adValue -> {
                         ad.getResponseInfo();
-                        AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                        AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdRewarded.get(0), remoteKey);
                     }
             );
 
@@ -4602,7 +4640,7 @@ public class Admob {
                         ad.setOnPaidEventListener(adValue -> {
                             //Adjust
                             ad.getResponseInfo();
-                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue);
+                            AdjustUtil.trackRevenue(ad.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdRewardedInterTemp.get(0), remoteKey);
                         });
                         Log.i(TAG, "REWARD INTER: onAdLoaded. " + remoteKey);
                         rewardedInterCallback.onAdLoaded(ad);

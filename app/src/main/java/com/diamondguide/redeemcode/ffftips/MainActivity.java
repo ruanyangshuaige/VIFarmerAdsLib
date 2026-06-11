@@ -11,12 +11,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
+import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.callback.AppOpenCallback;
-import com.vifarmer.ads.lib.ads.callback.InterCallback;
-import com.vifarmer.ads.lib.ads.callback.RewardedCallback;
-import com.vifarmer.ads.lib.ads.callback.RewardedInterCallback;
+import com.vifarmer.ads.lib.callback.AppOpenCallback;
+import com.vifarmer.ads.lib.callback.InterCallback;
+import com.vifarmer.ads.lib.callback.RewardedCallback;
+import com.vifarmer.ads.lib.callback.RewardedInterCallback;
 import com.vifarmer.ads.lib.ads.collapse_banner_ads.CollapseBannerBuilder;
 import com.vifarmer.ads.lib.ads.collapse_banner_ads.CollapseBannerManager;
 import com.vifarmer.ads.lib.ads.inter_ads.InterManager;

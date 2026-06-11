@@ -8,8 +8,8 @@ import android.widget.FrameLayout;
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
 
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
-import com.vifarmer.ads.lib.ads.callback.NativeCallback;
+import com.vifarmer.ads.lib.admob.AdmobApi;
+import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.R;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.ads.nativead.NativeAdView;

@@ -1,5 +1,8 @@
 package com.vifarmer.ads.lib.ads.splash_ads
 
+/*import com.amazic.library.iap.BillingCallback
+import com.amazic.library.iap.IAPManager
+import com.amazic.library.iap.ProductDetailCustom*/ //comment for billing
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -16,18 +19,18 @@ import com.vifarmer.ads.lib.Utils.EventTrackingHelper.time_splash_check
 import com.vifarmer.ads.lib.Utils.NetworkUtil
 import com.vifarmer.ads.lib.Utils.RemoteConfigHelper
 import com.vifarmer.ads.lib.Utils.SharePreferenceHelper
-import com.vifarmer.ads.lib.ads.admob.Admob
-import com.vifarmer.ads.lib.ads.admob.AdmobApi
+import com.vifarmer.ads.lib.admob.Admob
+import com.vifarmer.ads.lib.admob.AdmobApi
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager
 import com.vifarmer.ads.lib.ads.banner_ads.BannerBuilder
 import com.vifarmer.ads.lib.ads.banner_ads.BannerManager
-import com.vifarmer.ads.lib.ads.callback.ApiCallback
-import com.vifarmer.ads.lib.ads.callback.AppOpenCallback
-import com.vifarmer.ads.lib.ads.callback.BannerCallback
-import com.vifarmer.ads.lib.ads.callback.InterCallback
-import com.vifarmer.ads.lib.ads.iap.BillingCallback
-import com.vifarmer.ads.lib.ads.iap.IAPManager
-import com.vifarmer.ads.lib.ads.iap.ProductDetailCustom
+import com.vifarmer.ads.lib.callback.ApiCallback
+import com.vifarmer.ads.lib.callback.AppOpenCallback
+import com.vifarmer.ads.lib.callback.BannerCallback
+import com.vifarmer.ads.lib.callback.InterCallback
+import com.vifarmer.ads.lib.iap.BillingCallback
+import com.vifarmer.ads.lib.iap.IAPManager
+import com.vifarmer.ads.lib.iap.ProductDetailCustom
 import com.vifarmer.ads.lib.organic.TechManager
 import com.vifarmer.ads.lib.ump.AdsConsentManager
 import kotlinx.coroutines.CoroutineScope
@@ -93,6 +96,8 @@ class AsyncSplash {
     private var numberPreloadingSplash = 1
 
     private var isShowNativeAfterInter = false
+
+    private var isUseNativeSplash = false
 
     //1.end
     //2.use for log event
@@ -244,6 +249,7 @@ class AsyncSplash {
         this.keyIntervalInterstitialFromStart = "interval_interstitial_from_start"
         this.keyNativeAfterInter = "native_after_inter"
         this.isShowNativeAfterInter = false
+        this.isUseNativeSplash = false
     }
 
     fun setKeyIntervalBetweenInterstitial(keyIntervalBetweenInterstitial: String) {
@@ -354,6 +360,14 @@ class AsyncSplash {
 
     fun getShowNativeAfterInter(): Boolean {
         return this.isShowNativeAfterInter
+    }
+
+    fun setUseNativeSplash(isUse: Boolean) {
+        this.isUseNativeSplash = isUse
+    }
+
+    fun getUseNativeSplash(): Boolean {
+        return this.isUseNativeSplash
     }
 
     fun setUseIdAdsFromRemoteConfig(remoteKeyIdAdsServer: String) { //Use id ads from remote config or not (Key remote: id_ads)

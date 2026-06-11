@@ -7,9 +7,9 @@ import android.widget.FrameLayout;
 
 import androidx.appcompat.widget.AppCompatButton;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
-import com.vifarmer.ads.lib.ads.callback.NativeCallback;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.admob.AdmobApi;
+import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
 import com.vifarmer.ads.lib.R;
 import com.google.android.gms.ads.LoadAdError;

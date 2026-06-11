@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.admob;
+package com.vifarmer.ads.lib.admob;
 
 import android.content.Context;
 import android.os.Handler;
@@ -9,11 +9,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.vifarmer.ads.lib.Utils.NetworkUtil;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.call_api.AdsModel;
-import com.vifarmer.ads.lib.ads.call_api.ApiService;
-import com.vifarmer.ads.lib.ads.callback.ApiCallback;
-import com.vifarmer.ads.lib.ads.callback.AppOpenCallback;
-import com.vifarmer.ads.lib.ads.callback.InterCallback;
+import com.vifarmer.ads.lib.call_api.AdsModel;
+import com.vifarmer.ads.lib.call_api.ApiService;
+import com.vifarmer.ads.lib.callback.ApiCallback;
+import com.vifarmer.ads.lib.callback.AppOpenCallback;
+import com.vifarmer.ads.lib.callback.InterCallback;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 

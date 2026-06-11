@@ -5,10 +5,10 @@ import android.content.Context;
 import android.util.Log;
 
 import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.callback.InterCallback;
+import com.vifarmer.ads.lib.callback.InterCallback;
 import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 

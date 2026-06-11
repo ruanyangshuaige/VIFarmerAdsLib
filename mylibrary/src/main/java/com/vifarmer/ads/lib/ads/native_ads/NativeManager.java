@@ -13,8 +13,8 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.callback.NativeCallback;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.nativead.NativeAd;
 

@@ -1,7 +1,7 @@
 package com.vifarmer.ads.lib.ads.collapse_banner_ads;
 
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
-import com.vifarmer.ads.lib.ads.callback.BannerCallback;
+import com.vifarmer.ads.lib.admob.AdmobApi;
+import com.vifarmer.ads.lib.callback.BannerCallback;
 
 import java.util.ArrayList;
 import java.util.List;

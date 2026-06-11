@@ -3,10 +3,10 @@ package com.vifarmer.ads.lib.ads.reward_ads;
 import android.app.Activity;
 import android.util.Log;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.admob.AdmobApi;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
-import com.vifarmer.ads.lib.ads.callback.RewardedCallback;
+import com.vifarmer.ads.lib.callback.RewardedCallback;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 
 import java.util.HashMap;

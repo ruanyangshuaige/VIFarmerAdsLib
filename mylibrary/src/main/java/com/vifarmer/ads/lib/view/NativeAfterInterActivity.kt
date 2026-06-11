@@ -13,7 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.vifarmer.ads.lib.ads.callback.InterCallback
+import com.vifarmer.ads.lib.callback.InterCallback
 import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager
 import com.vifarmer.ads.lib.R
 

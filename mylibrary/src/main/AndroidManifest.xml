@@ -10,7 +10,7 @@
         android:hardwareAccelerated="true"
         android:usesCleartextTraffic="true">
         <activity
-            android:name="com.vifarmer.ads.lib.view.NativeAfterInterActivity"
+            android:name=".view.NativeAfterInterActivity"
             android:exported="false" />
     </application>
 

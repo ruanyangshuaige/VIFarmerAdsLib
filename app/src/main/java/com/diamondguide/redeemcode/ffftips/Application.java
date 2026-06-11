@@ -2,7 +2,7 @@ package com.diamondguide.redeemcode.ffftips;
 
 import androidx.annotation.NonNull;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
+import com.vifarmer.ads.lib.admob.Admob;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
 import com.vifarmer.ads.lib.application.AdsApplication;
 
@@ -28,6 +28,6 @@ public class Application extends AdsApplication {
 
     @Override
     public Boolean buildDebug() {
-        return null;
+        return false;
     }
 }

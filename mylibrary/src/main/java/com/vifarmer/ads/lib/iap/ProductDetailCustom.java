@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.iap;
+package com.vifarmer.ads.lib.iap;
 
 public class ProductDetailCustom {
     private String productId;

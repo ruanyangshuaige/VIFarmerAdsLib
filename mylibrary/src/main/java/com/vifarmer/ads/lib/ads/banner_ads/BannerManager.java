@@ -16,8 +16,8 @@ import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
-import com.vifarmer.ads.lib.ads.admob.Admob;
-import com.vifarmer.ads.lib.ads.callback.BannerCallback;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.callback.BannerCallback;
 
 public class BannerManager implements LifecycleEventObserver {
     private static final String TAG = "BannerManager";

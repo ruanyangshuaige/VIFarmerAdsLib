@@ -6,11 +6,11 @@ plugins {
 
 android {
     namespace 'com.vifarmer.ads.lib'
-    compileSdk 36
+    compileSdk 35
 
     defaultConfig {
         minSdk 24
-        targetSdk 36
+        targetSdk 35
         versionCode 1
         versionName "1.0"
 
@@ -33,13 +33,13 @@ android {
 
     buildTypes {
         release {
-            buildConfigField "String", "apiKey", "\"Bearer \""
+            buildConfigField "String", "apiKey", "\"Bearer mpBYiG4WNndUpojp7pez\""
             buildConfigField "String", "baseUrl", "\"https://api.adjust.com/device_service/api/v1/\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         debug {
-            buildConfigField "String", "apiKey", "\"Bearer \""
+            buildConfigField "String", "apiKey", "\"Bearer mpBYiG4WNndUpojp7pez\""
             buildConfigField "String", "baseUrl", "\"https://api.adjust.com/device_service/api/v1/\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -54,33 +54,39 @@ android {
         jvmTarget = '1.8'
     }
     lint {
-        // Tắt bộ kiểm tra gây crash hệ thống
-        disable "NullSafeMutableLiveData"
-        // Hoặc nếu vẫn bị crash ở các check khác, bạn có thể chọn bỏ qua lỗi lint khi build release:
-        abortOnError false
         checkReleaseBuilds false
+        abortOnError false
     }
 }
 
-publishing {
-    publications {
-        release(MavenPublication) {
-            groupId = 'com.github.ruanyangshuaige'
-            artifactId = 'com.vifarmer.ads.lib'
-            version = '1.0.0'
+tasks.withType(GenerateModuleMetadata).configureEach {
+    enabled = false
+}
 
-            afterEvaluate {
-                from components.release
-            }
-        }
+tasks.whenTaskAdded { task ->
+    if (task.name.contains("bundleReleaseLocalLintAar")) {
+        task.enabled = false
     }
 }
+
+//publishing {
+//    publications {
+//        release(MavenPublication) {
+//            groupId = 'com.github.DuongNT3012'
+//            artifactId = 'com.vifarmer.ads.lib'
+//            version = '1.0.0'
+//
+//            afterEvaluate {
+//                from components.release
+//            }
+//        }
+//    }
+//}
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.7.1'
     implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.lifecycle:lifecycle-process:2.10.0'
+    implementation 'androidx.lifecycle:lifecycle-process:2.9.1'
     implementation 'androidx.core:core-ktx:1.16.0'
     implementation 'com.google.android.play:review:2.0.2'
     implementation 'com.google.android.play:app-update:2.1.0'
@@ -98,7 +104,7 @@ dependencies {
     implementation 'com.squareup.retrofit2:converter-gson:3.0.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:5.3.2'
     //ads
-    implementation 'com.google.android.gms:play-services-ads:25.3.0'
+    implementation 'com.google.android.gms:play-services-ads:25.2.0'
     implementation 'com.google.android.gms:play-services-ads-identifier:18.3.0'
     implementation 'com.google.android.gms:play-services-appset:16.1.0'
     //implementation 'com.google.android.gms:play-services-basement:18.7.0'
@@ -117,5 +123,39 @@ dependencies {
     implementation 'com.airbnb.android:lottie:6.7.1'
     //billing
     implementation "com.android.billingclient:billing:9.0.0"
-    implementation 'com.google.guava:guava:33.6.0-jre'
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // components.release chứa toàn bộ file .aar và dependencies của module này
+                from components.release
+
+                // GroupId: Thường là com.github.User
+                groupId = 'com.github.DuongNT3012'
+                // ArtifactId: Phải là AmazicLibrary để gọi được implementation ngắn gọn
+                artifactId = 'AmazicLibrary'
+                // Version: Lấy theo Git Tag, ở đây set cứng để Gradle đồng bộ local
+                version = '2.4.0'
+
+                // Fix lỗi "Missing required attribute: dependency groupId"
+//                pom.withXml {
+//                    def dependenciesNode = asNode().getAt('dependencies')[0]
+//                    if (dependenciesNode != null) {
+//                        // Lặp qua tất cả các dependency trong file POM được sinh ra
+//                        def dependencies = dependenciesNode.getAt('dependency')
+//                        dependencies.each { dep ->
+//                            def groupId = dep.getAt('groupId').text()
+//                            // Nếu groupId bị thiếu hoặc là 'unspecified' (do file AAR cục bộ)
+//                            if (groupId == null || groupId == "" || groupId == "unspecified") {
+//                                // XÓA NÓ ĐI khỏi file POM
+//                                dependenciesNode.remove(dep)
+//                            }
+//                        }
+//                    }
+//                }
+            }
+        }
+    }
 }

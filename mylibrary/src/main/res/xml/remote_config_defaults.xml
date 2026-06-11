@@ -58,19 +58,19 @@
     </entry>
     <entry>
         <key>interval_between_interstitial</key>
-        <value>0</value>
+        <value>15</value>
     </entry>
     <entry>
         <key>interval_interstitial_from_start</key>
-        <value>0</value>
+        <value>20</value>
     </entry>
     <entry>
         <key>interval_reload_native</key>
-        <value>0</value>
+        <value>15</value>
     </entry>
     <entry>
         <key>interval_reload_collapse_banner</key>
-        <value>0</value>
+        <value>15</value>
     </entry>
     <entry>
         <key>rate_aoa_inter_splash</key>

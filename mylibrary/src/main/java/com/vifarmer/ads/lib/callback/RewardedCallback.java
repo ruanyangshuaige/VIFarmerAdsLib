@@ -1,15 +1,12 @@
-package com.vifarmer.ads.lib.ads.callback;
+package com.vifarmer.ads.lib.callback;
 
-import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewarded.RewardedAd;
 
-public class RewardedInterCallback {
-    public void onAdLoaded(RewardedInterstitialAd ad) {
-    }
-
+public class RewardedCallback {
     public void onAdFailedToLoad() {
     }
 
-    public void onAdClicked() {
+    public void onAdLoaded(RewardedAd ad) {
     }
 
     public void onAdDismissedFullScreenContent() {
@@ -22,6 +19,9 @@ public class RewardedInterCallback {
     }
 
     public void onAdShowedFullScreenContent() {
+    }
+
+    public void onAdClicked() {
     }
 
     public void onNextAction() {

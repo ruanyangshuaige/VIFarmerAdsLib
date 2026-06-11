@@ -1,4 +1,4 @@
-package com.vifarmer.ads.lib.ads.callback;
+package com.vifarmer.ads.lib.callback;
 
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 

@@ -10,12 +10,9 @@ import androidx.annotation.Nullable;
 
 import com.adjust.sdk.Adjust;
 import com.adjust.sdk.AdjustConfig;
-import com.adjust.sdk.AdjustEventFailure;
-import com.adjust.sdk.AdjustEventSuccess;
 import com.adjust.sdk.LogLevel;
-import com.adjust.sdk.OnEventTrackingFailedListener;
-import com.adjust.sdk.OnEventTrackingSucceededListener;
-import com.vifarmer.ads.lib.ads.admob.Admob;
+import com.vifarmer.ads.lib.admob.Admob;
+import com.google.android.gms.ads.MobileAds;
 
 public abstract class AdsApplication extends Application implements Application.ActivityLifecycleCallbacks {
     private static final String TAG = "AdsApplication";
@@ -24,34 +21,29 @@ public abstract class AdsApplication extends Application implements Application.
     public void onCreate() {
         super.onCreate();
         Admob.getInstance().setTimeStart(System.currentTimeMillis());
+        //initAdmob();
         setUpAdjust();
         registerActivityLifecycleCallbacks(this);
     }
 
+    private void initAdmob() {
+        new Thread(() -> {
+            // Initialize the Google Mobile Ads SDK on a background thread.
+            MobileAds.initialize(this, initializationStatus -> {
+                Log.d("Admob", "initAdmob: application - " + initializationStatus.getAdapterStatusMap());
+                Admob.getInstance().setIsInitAdmobDone(true);
+            });
+        }).start();
+    }
+
     private void setUpAdjust() {
         String environment;
-        if (buildDebug() != null && buildDebug()) {
-            environment = AdjustConfig.ENVIRONMENT_SANDBOX;
-        } else {
-            environment = AdjustConfig.ENVIRONMENT_PRODUCTION;
-        }
+        environment = buildDebug() ? AdjustConfig.ENVIRONMENT_SANDBOX : AdjustConfig.ENVIRONMENT_PRODUCTION;
         AdjustConfig config = new AdjustConfig(this, getAppTokenAdjust(), environment);
         config.setLogLevel(LogLevel.VERBOSE);
         config.setFbAppId(getFacebookID());
         config.setDefaultTracker(getAppTokenAdjust());
         config.enableSendingInBackground();
-        config.setOnEventTrackingSucceededListener(new OnEventTrackingSucceededListener() {
-            @Override
-            public void onEventTrackingSucceeded(AdjustEventSuccess adjustEventSuccess) {
-                Log.d("AdjustRevenue", "onEventTrackingSucceeded: " + adjustEventSuccess);
-            }
-        });
-        config.setOnEventTrackingFailedListener(new OnEventTrackingFailedListener() {
-            @Override
-            public void onEventTrackingFailed(AdjustEventFailure adjustEventFailure) {
-                Log.d("AdjustRevenue", "onEventTrackingFailed: " + adjustEventFailure);
-            }
-        });
         Adjust.initSdk(config);
         // Enable the SDK
         Adjust.enable();
@@ -98,5 +90,6 @@ public abstract class AdsApplication extends Application implements Application.
     @NonNull
     public abstract String getFacebookID();
 
+    @NonNull
     public abstract Boolean buildDebug();
 }
