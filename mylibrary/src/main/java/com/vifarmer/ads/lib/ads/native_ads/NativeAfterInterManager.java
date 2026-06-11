@@ -12,6 +12,7 @@ import androidx.appcompat.widget.AppCompatButton;
 
 import com.vifarmer.ads.lib.admob.Admob;
 import com.vifarmer.ads.lib.admob.AdmobApi;
+import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
 import com.vifarmer.ads.lib.R;
@@ -28,6 +29,7 @@ public class NativeAfterInterManager {
     public static final Map<String, NativeAd> mapNativeAdsAfterInter = new HashMap<>();
 
     public static void preloadNativeAfterInter(Activity activity, String adsKey, String remoteKey) {
+        NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
         NativeAfterInterActivity.Companion.setAdsKey(adsKey);
         NativeAfterInterActivity.Companion.setRemoteKey(remoteKey);
         Log.d(TAG, "NativeAfterInterManager: preloadNativeAfterInter - list is Empty: "+AdmobApi.getInstance().getListIDByName(adsKey).isEmpty() + ", adskey = "+mapNativeAdsAfterInter.get(adsKey));

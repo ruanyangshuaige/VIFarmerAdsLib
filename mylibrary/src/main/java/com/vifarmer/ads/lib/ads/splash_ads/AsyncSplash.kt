@@ -1,8 +1,5 @@
 package com.vifarmer.ads.lib.ads.splash_ads
 
-/*import com.amazic.library.iap.BillingCallback
-import com.amazic.library.iap.IAPManager
-import com.amazic.library.iap.ProductDetailCustom*/ //comment for billing
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
@@ -137,6 +134,9 @@ class AsyncSplash {
     private var timeLastStep = System.currentTimeMillis()
 //    private var onInitAdmobDone: (() -> Unit)? = null
 
+    //Delay time show X button native_after_inter
+    private var timeShowXButtonNativeAfterInter = 3000
+
     fun normalizeFirebaseEventName(input: String): String {
         if (input.isBlank()) return DEFAULT_EVENT_NAME
 
@@ -250,6 +250,15 @@ class AsyncSplash {
         this.keyNativeAfterInter = "native_after_inter"
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
+        this.timeShowXButtonNativeAfterInter = 3000
+    }
+
+    fun setTimeOutShowXButtonNativeAfterInter(timeShowXButtonNativeAfterInter: Int) {
+        this.timeShowXButtonNativeAfterInter = timeShowXButtonNativeAfterInter
+    }
+
+    fun getTimeOutShowXButtonNativeAfterInter(): Int {
+        return this.timeShowXButtonNativeAfterInter
     }
 
     fun setKeyIntervalBetweenInterstitial(keyIntervalBetweenInterstitial: String) {
