@@ -508,6 +508,7 @@ public class Admob {
                         if (nativeAd == null) {
                             interCallback.onNextAction();
                         } else {
+                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                             startNativeAfterInter(activity, interCallback);
                         }
                     } else {
@@ -600,6 +601,7 @@ public class Admob {
                     if (nativeAd == null) {
                         interCallback.onNextAction();
                     } else {
+                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                         startNativeAfterInter(activity, interCallback);
                     }
                 } else {
@@ -630,6 +632,7 @@ public class Admob {
                     if (!openActivityAfterShowInterAds) {
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             } else {
                                 interCallback.onNextAction();
@@ -661,6 +664,7 @@ public class Admob {
                     if (!openActivityAfterShowInterAds) {
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             } else {
                                 interCallback.onNextAction();
@@ -793,6 +797,7 @@ public class Admob {
                     if (nativeAd == null) {
                         interCallback.onNextAction();
                     } else {
+                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                         startNativeAfterInter(activity, interCallback);
                     }
                 } else {
@@ -839,6 +844,7 @@ public class Admob {
                     if (!openActivityAfterShowInterAds) {
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             } else {
                                 interCallback.onNextAction();
@@ -872,6 +878,7 @@ public class Admob {
                     if (!openActivityAfterShowInterAds) {
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             } else {
                                 interCallback.onNextAction();
@@ -942,6 +949,7 @@ public class Admob {
                     if (nativeAd == null) {
                         interCallback.onNextAction();
                     } else {
+                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                         startNativeAfterInter(activity, interCallback);
                     }
                 } else {
@@ -994,6 +1002,7 @@ public class Admob {
                             if (nativeAd == null) {
                                 interCallback.onNextAction();
                             } else {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             }
                         } else {
@@ -1052,6 +1061,7 @@ public class Admob {
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                             if (isShowNativeAfterInter) {
                                 Log.d(TAG, "INTER Ad Preload - loadAndShow: onAdFailedToPreload - show Native after inter");
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             } else {
                                 Log.d(TAG, "INTER Ad Preload - loadAndShow: onAdFailedToPreload - ONNEXT Not show Native after inter");
@@ -1120,6 +1130,7 @@ public class Admob {
                             if (nativeAd == null) {
                                 interCallback.onNextAction();
                             } else {
+                                canCountTimeStartToShowXButtonNativeAfterInter = true;
                                 startNativeAfterInter(activity, interCallback);
                             }
                         }
@@ -1275,6 +1286,7 @@ public class Admob {
                         if (nativeAd == null) {
                             interCallback.onNextAction();
                         } else {
+                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                             startNativeAfterInter(activity, interCallback);
                         }
                     }
@@ -1330,6 +1342,7 @@ public class Admob {
                                         if (nativeAd == null) {
                                             interCallback.onNextAction();
                                         } else {
+                                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                                             startNativeAfterInter(activity, interCallback);
                                         }
                                     }
@@ -1360,6 +1373,7 @@ public class Admob {
                                         if (nativeAd == null) {
                                             interCallback.onNextAction();
                                         } else {
+                                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                                             startNativeAfterInter(activity, interCallback);
                                         }
                                     }
@@ -1434,6 +1448,7 @@ public class Admob {
                                         interCallback.onNextAction();
                                     } else {
                                         Log.d(TAG, "AdsSplash Inter preload: showInterAdsSplash: show Native After Inter");
+                                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                                         startNativeAfterInter(activity, interCallback);
                                     }
                                 }
