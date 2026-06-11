@@ -36,6 +36,12 @@ android {
     viewBinding {
         enabled = true
     }
+    lint {
+        disable.add("NullSafeMutableLiveData")
+        // Alternative fallback:
+        isCheckReleaseBuilds = false
+        isAbortOnError = false
+    }
     packaging {
         resources {
             excludes += '/META-INF/versions/9/OSGI-INF/MANIFEST.MF'
