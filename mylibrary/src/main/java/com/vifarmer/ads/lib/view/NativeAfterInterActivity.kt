@@ -24,6 +24,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
         var interCallback: InterCallback? = null
         var adsKey: String = "native_after_inter"
         var remoteKey: String = "native_after_inter"
+        var timeDelayShowXButton: Int = 3000
     }
 
     @SuppressLint("MissingInflatedId")
@@ -38,6 +39,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
         frAds = findViewById(R.id.fr_ads)
         Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
         NativeAfterInterManager.showPreloadNativeAfterInter(
+            timeDelayShowXButton,
             frAds,
             this,
             adsKey,

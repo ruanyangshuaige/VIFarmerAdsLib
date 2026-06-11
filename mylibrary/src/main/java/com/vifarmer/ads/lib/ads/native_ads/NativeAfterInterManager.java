@@ -1,9 +1,12 @@
 package com.vifarmer.ads.lib.ads.native_ads;
 
 import android.app.Activity;
+import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 
 import androidx.appcompat.widget.AppCompatButton;
 
@@ -18,6 +21,7 @@ import com.google.android.gms.ads.nativead.NativeAdView;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Handler;
 
 public class NativeAfterInterManager {
     private static final String TAG = "Admob";
@@ -51,7 +55,7 @@ public class NativeAfterInterManager {
         }
     }
 
-    public static void showPreloadNativeAfterInter(FrameLayout fr, Activity activity, String adsKey, String remoteKey, OnCloseNativeListener listener) {
+    public static void showPreloadNativeAfterInter(int timeDelayShowXButton, FrameLayout fr, Activity activity, String adsKey, String remoteKey, OnCloseNativeListener listener) {
         Log.d(TAG, "NativeAfterInterManager: showPreloadNativeAfterInter: adsKey = " + adsKey);
         int idLayoutNative = R.layout.native_after_inter;
         NativeAd nativeAd = mapNativeAdsAfterInter.get(adsKey);
@@ -62,11 +66,18 @@ public class NativeAfterInterManager {
             NativeAdView adView = (NativeAdView) layoutInflater.inflate(idLayoutNative, fr, false);
 
             AppCompatButton btnClose = adView.findViewById(R.id.btn_close);
+            ImageView imgClose = adView.findViewById(R.id.img_close);
             btnClose.setOnClickListener(view -> {
                 if(listener != null){
                     listener.onClose();
                 }
             });
+            imgClose.setOnClickListener(view -> {
+                if(listener != null){
+                    listener.onClose();
+                }
+            });
+            new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> imgClose.setVisibility(View.VISIBLE), timeDelayShowXButton);
             fr.removeAllViews();
             fr.addView(adView);
             Admob.getInstance().populateNativeAdView(nativeAd, adView);

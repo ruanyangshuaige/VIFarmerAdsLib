@@ -133,7 +133,8 @@
                     android:gravity="center"
                     android:text="Close"
                     android:textColor="@color/white"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:visibility="gone" />
 
                 <androidx.appcompat.widget.AppCompatButton
                     android:id="@+id/ad_call_to_action"
@@ -148,5 +149,14 @@
 
             </LinearLayout>
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/img_close"
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:layout_alignParentEnd="true"
+            android:layout_margin="20dp"
+            android:padding="3dp"
+            android:src="@drawable/baseline_close_24" />
     </RelativeLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>
