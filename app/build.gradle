@@ -37,10 +37,9 @@ android {
         enabled = true
     }
     lint {
-        disable.add("NullSafeMutableLiveData")
-        // Alternative fallback:
-        isCheckReleaseBuilds = false
-        isAbortOnError = false
+        disable "NullSafeMutableLiveData"
+        checkReleaseBuilds false
+        abortOnError false
     }
     packaging {
         resources {
