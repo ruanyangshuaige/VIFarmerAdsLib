@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#2C2930">
+        android:background="#FFFFFF">
 
         <com.google.android.gms.ads.nativead.MediaView
             android:id="@+id/ad_media"
@@ -70,7 +70,7 @@
                             android:ellipsize="end"
                             android:maxLines="2"
                             android:text="hellop .this ius dsa dsadsa "
-                            android:textColor="#FDFCFF"
+                            android:textColor="#A4735B"
                             android:textSize="16sp" />
 
                     </LinearLayout>
@@ -90,7 +90,7 @@
                             android:gravity="bottom"
                             android:maxLines="2"
                             android:text="DDDDDDDDDDDDDDDDdsdsdsdsdsdsdsds"
-                            android:textColor="#BFBEC4"
+                            android:textColor="#000000"
                             android:textSize="12sp" />
                     </LinearLayout>
                 </LinearLayout>
@@ -120,7 +120,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
-                android:layout_marginBottom="65dp"
+                android:layout_marginBottom="45dp"
                 android:orientation="horizontal">
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -144,7 +144,7 @@
                     android:background="@drawable/btn_install"
                     android:gravity="center"
                     android:text="INSTALL"
-                    android:textColor="#3C3C3C"
+                    android:textColor="#FFFFFF"
                     android:textSize="14sp" />
 
             </LinearLayout>
@@ -155,9 +155,11 @@
             android:layout_width="28dp"
             android:layout_height="28dp"
             android:layout_alignParentEnd="true"
-            android:layout_margin="20dp"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginTop="30dp"
             android:padding="3dp"
             android:src="@drawable/baseline_close_24"
-            android:visibility="invisible" />
+            android:visibility="invisible"
+            app:tint="@color/black" />
     </RelativeLayout>
 </com.google.android.gms.ads.nativead.NativeAdView>

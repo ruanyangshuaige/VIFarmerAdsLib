@@ -38,6 +38,11 @@ class NativeAfterInterActivity : AppCompatActivity() {
 
         frAds = findViewById(R.id.fr_ads)
         Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
+
+    }
+
+    override fun onResume() {
+        super.onResume()
         NativeAfterInterManager.showPreloadNativeAfterInter(
             timeDelayShowXButton,
             frAds,
@@ -57,7 +62,6 @@ class NativeAfterInterActivity : AppCompatActivity() {
                 }
             }
         )
-
     }
 
     override fun onDestroy() {

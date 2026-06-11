@@ -10,19 +10,18 @@ import android.widget.ImageView;
 
 import androidx.appcompat.widget.AppCompatButton;
 
+import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.nativead.NativeAd;
+import com.google.android.gms.ads.nativead.NativeAdView;
+import com.vifarmer.ads.lib.R;
 import com.vifarmer.ads.lib.admob.Admob;
 import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
-import com.vifarmer.ads.lib.R;
-import com.google.android.gms.ads.LoadAdError;
-import com.google.android.gms.ads.nativead.NativeAd;
-import com.google.android.gms.ads.nativead.NativeAdView;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Handler;
 
 public class NativeAfterInterManager {
     private static final String TAG = "Admob";
@@ -32,9 +31,9 @@ public class NativeAfterInterManager {
         NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
         NativeAfterInterActivity.Companion.setAdsKey(adsKey);
         NativeAfterInterActivity.Companion.setRemoteKey(remoteKey);
-        Log.d(TAG, "NativeAfterInterManager: preloadNativeAfterInter - list is Empty: "+AdmobApi.getInstance().getListIDByName(adsKey).isEmpty() + ", adskey = "+mapNativeAdsAfterInter.get(adsKey));
+        Log.d(TAG, "NativeAfterInterManager: preloadNativeAfterInter - list is Empty: " + AdmobApi.getInstance().getListIDByName(adsKey).isEmpty() + ", adskey = " + mapNativeAdsAfterInter.get(adsKey));
         if (mapNativeAdsAfterInter.get(adsKey) == null || !AdmobApi.getInstance().getListIDByName(adsKey).isEmpty()) {
-            Log.d(TAG, "NativeAfterInterManager: 1.preloadNativeAfterInter."+ AdmobApi.getInstance().getListIDByName(adsKey));
+            Log.d(TAG, "NativeAfterInterManager: 1.preloadNativeAfterInter." + AdmobApi.getInstance().getListIDByName(adsKey));
             Admob.getInstance().loadNativeAds(
                     activity,
                     AdmobApi.getInstance().getListIDByName(adsKey),
@@ -70,22 +69,24 @@ public class NativeAfterInterManager {
             AppCompatButton btnClose = adView.findViewById(R.id.btn_close);
             ImageView imgClose = adView.findViewById(R.id.img_close);
             btnClose.setOnClickListener(view -> {
-                if(listener != null){
+                if (listener != null) {
                     listener.onClose();
                 }
             });
             imgClose.setOnClickListener(view -> {
-                if(listener != null){
+                if (listener != null) {
                     listener.onClose();
                 }
             });
-            new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> imgClose.setVisibility(View.VISIBLE), timeDelayShowXButton);
+            if (Admob.getInstance().canCountTimeStartToShowXButtonNativeAfterInter) {
+                new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> imgClose.setVisibility(View.VISIBLE), timeDelayShowXButton);
+            }
             fr.removeAllViews();
             fr.addView(adView);
             Admob.getInstance().populateNativeAdView(nativeAd, adView);
-        }else {
+        } else {
             Log.d(TAG, "NativeAfterInterManager: NativeAd NULL onNext");
-            if(listener != null){
+            if (listener != null) {
                 listener.onFail();
             }
         }
@@ -96,6 +97,7 @@ public class NativeAfterInterManager {
 
     public interface OnCloseNativeListener {
         void onClose();
+
         void onFail();
     }
 }

@@ -135,12 +135,12 @@ public class SplashActivity extends AppCompatActivity {
             AsyncSplash.Companion.getInstance().setDebug(true); //use for TechManager, DetectTestAd
 //            AsyncSplash.Companion.getInstance().setLoadAndShowIdInterAdSplashAsync();
             AsyncSplash.Companion.getInstance().setPreloadResumeAds(false);
-            AsyncSplash.Companion.getInstance().setUseAdPreloading(true);
+            //AsyncSplash.Companion.getInstance().setUseAdPreloading(true);
 //            AsyncSplash.Companion.getInstance().setAsyncSplashAds();
             //AsyncSplash.Companion.getInstance().setLoopAdsSplash(true);
 //            AsyncSplash.Companion.getInstance().setTimeOutSplash(12000);
             //AsyncSplash.Companion.getInstance().setTimeOutCallApi(5000);
-            AsyncSplash.Companion.getInstance().setUseIdAdsFromRemoteConfig("id_ads");
+            //AsyncSplash.Companion.getInstance().setUseIdAdsFromRemoteConfig("id_ads");
             //AsyncSplash.Companion.getInstance().setTimeOutCallIdRemoteConfig(5000);
 //            ArrayList<ProductDetailCustom> listIAP = new ArrayList<>();
 //            listIAP.add(new ProductDetailCustom(IAPManager.PRODUCT_ID_TEST, IAPManager.typeSub));
@@ -150,13 +150,14 @@ public class SplashActivity extends AppCompatActivity {
 //            AsyncSplash.Companion.getInstance().setInitWelcomeBackBelowResumeAds(WelcomeBackActivity.class); //init resume ads with welcome back below
             ArrayList<String> listTurnOffRemote = new ArrayList<>();
             //listTurnOffRemote.add("native_wb");
+            AsyncSplash.Companion.getInstance().setShowNativeAfterInter(true);
+            AsyncSplash.Companion.getInstance().setKeyNativeAfterInter("native_full_splash");
             AsyncSplash.Companion.getInstance().setListTurnOffRemoteKeys(listTurnOffRemote); //set list off remote of TechManager
             ArrayList<String> listIdBannerSplash = new ArrayList<>();
             listIdBannerSplash.add("ca-app-pub-3940256099942544/6300978111");
             AsyncSplash.Companion.getInstance().setKeyAdsInterSplash("inter_splash");
             AsyncSplash.Companion.getInstance().setKeyAdsOpenSplash("open_splash");
             AsyncSplash.Companion.getInstance().setKeyAdsOpenResume("open_splash");
-            AsyncSplash.Companion.getInstance().setShowNativeAfterInter(false);
             AsyncSplash.Companion.getInstance().setKeyIntervalBetweenInterstitial("interval_between_interstitial");
             AsyncSplash.Companion.getInstance().setKeyIntervalInterstitialFromStart("interval_interstitial_from_start");
             AsyncSplash.Companion.getInstance().setShowBannerSplash(binding.bannerContainerView, listIdBannerSplash, "banner_splash");
@@ -182,7 +183,7 @@ public class SplashActivity extends AppCompatActivity {
                     listAnim.add(R.raw.custom_loading);
                     Admob.getInstance().setCustomAnimationDialog(listAnim);
                     AppOpenManager.getInstance().setCustomAnimationDialog(listAnim);*/
-                            NativeAfterInterManager.preloadNativeAfterInter(SplashActivity.this, "native_all", "native_after_inter");
+                            //NativeAfterInterManager.preloadNativeAfterInter(SplashActivity.this, "native_all", "native_after_inter");
 //                            InterManager.loadInterAdPreload(SplashActivity.this, "inter_all", "inter_all");
 
                             return null;

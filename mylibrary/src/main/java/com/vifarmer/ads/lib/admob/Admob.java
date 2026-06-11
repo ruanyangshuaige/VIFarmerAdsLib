@@ -136,6 +136,8 @@ public class Admob {
     private int timeDelayAdsSplash = 7000;
     private boolean isInitAdmobDone = false;
     //end
+    //Có thể bắt đầu đếm tg để show nút X native_after_inter
+    public boolean canCountTimeStartToShowXButtonNativeAfterInter = false;
 
     public static Admob getInstance() {
         if (INSTANCE == null) {
@@ -1622,6 +1624,7 @@ public class Admob {
                     if (isEmptyListNativeAfterInter) {
                         interCallback.onNextAction();
                     } else {
+                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                         startNativeAfterInter(activity, interCallback);
                     }
                 } else {
@@ -1662,6 +1665,7 @@ public class Admob {
                                     if (isEmptyListNativeAfterInter) {
                                         interCallback.onNextAction();
                                     } else {
+                                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                                         startNativeAfterInter(activity, interCallback);
                                     }
                                 } else {
@@ -1670,6 +1674,8 @@ public class Admob {
                             } else {
                                 interCallback.onNextAction();
                             }
+                        } else {
+                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                         }
                         isInterOrRewardedShowing = false;
                     }
@@ -1687,6 +1693,7 @@ public class Admob {
                                     if (isEmptyListNativeAfterInter) {
                                         interCallback.onNextAction();
                                     } else {
+                                        canCountTimeStartToShowXButtonNativeAfterInter = true;
                                         startNativeAfterInter(activity, interCallback);
                                     }
                                 } else {
@@ -2259,6 +2266,7 @@ public class Admob {
                         if (isEmptyListNativeAfterInter) {
                             interCallback.onNextAction();
                         } else {
+                            canCountTimeStartToShowXButtonNativeAfterInter = true;
                             startNativeAfterInter(activity, interCallback);
                         }
                     } else {
