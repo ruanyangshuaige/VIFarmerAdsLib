@@ -642,9 +642,12 @@ public class Admob {
                         }
                     } else {
                         /// can check neu truong hop load fail native after inter thi dismiss chuyen onnext
+                        Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: 1");
                         if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
+                            Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: 2");
                             if (isShowNativeAfterInter) {
                                 NativeAd nativeAd = NativeAfterInterManager.mapNativeAdsAfterInter.get(adsKeyNative);
+                                Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: " + nativeAd);
                                 if (nativeAd == null) {
                                     interCallback.onNextAction();
                                 }

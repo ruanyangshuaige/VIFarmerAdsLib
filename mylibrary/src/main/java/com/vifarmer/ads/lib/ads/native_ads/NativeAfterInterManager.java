@@ -78,9 +78,9 @@ public class NativeAfterInterManager {
                     listener.onClose();
                 }
             });
-            if (Admob.getInstance().canCountTimeStartToShowXButtonNativeAfterInter) {
+            //if (Admob.getInstance().canCountTimeStartToShowXButtonNativeAfterInter) {
                 new android.os.Handler(Looper.getMainLooper()).postDelayed(() -> imgClose.setVisibility(View.VISIBLE), timeDelayShowXButton);
-            }
+            //}
             fr.removeAllViews();
             fr.addView(adView);
             Admob.getInstance().populateNativeAdView(nativeAd, adView);

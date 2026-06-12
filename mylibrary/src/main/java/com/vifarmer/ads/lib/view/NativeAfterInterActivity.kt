@@ -4,21 +4,30 @@ import android.annotation.SuppressLint
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
+import android.widget.ProgressBar
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import com.vifarmer.ads.lib.callback.InterCallback
-import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager
 import com.vifarmer.ads.lib.R
+import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager
+import com.vifarmer.ads.lib.callback.InterCallback
 
 class NativeAfterInterActivity : AppCompatActivity() {
     private lateinit var frAds: FrameLayout
+    private var isPause = false
+
+    override fun onPause() {
+        super.onPause()
+        isPause = true
+    }
 
     companion object {
         var interCallback: InterCallback? = null
@@ -43,26 +52,32 @@ class NativeAfterInterActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        NativeAfterInterManager.showPreloadNativeAfterInter(
-            timeDelayShowXButton,
-            frAds,
-            this,
-            adsKey,
-            remoteKey,
-            object : NativeAfterInterManager.OnCloseNativeListener {
-                override fun onClose() {
-                    Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
-                    interCallback?.onNextAction()
-                    finish()
-                }
+        isPause = false
+        Handler(Looper.getMainLooper()).postDelayed({
+            if (!isPause) {
+                NativeAfterInterManager.showPreloadNativeAfterInter(
+                    timeDelayShowXButton,
+                    frAds,
+                    this,
+                    adsKey,
+                    remoteKey,
+                    object : NativeAfterInterManager.OnCloseNativeListener {
+                        override fun onClose() {
+                            Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
+                            interCallback?.onNextAction()
+                            finish()
+                        }
 
-                override fun onFail() {
-                    Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
-                    interCallback?.onNextAction()
-                    finish()
-                }
+                        override fun onFail() {
+                            Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
+                            interCallback?.onNextAction()
+                            finish()
+                        }
+                    }
+                )
+                findViewById<ProgressBar>(R.id.progress_bar).visibility = android.view.View.GONE
             }
-        )
+        }, 1000)
     }
 
     override fun onDestroy() {
