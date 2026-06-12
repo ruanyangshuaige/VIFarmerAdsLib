@@ -190,7 +190,7 @@ public class NativeManager implements LifecycleEventObserver {
         }
         //
 
-        handleTimeoutCallNative();
+        //handleTimeoutCallNative();
         if(isShowNativeSecond){
             //show ads native second len dau
             loadSecondaryNative();

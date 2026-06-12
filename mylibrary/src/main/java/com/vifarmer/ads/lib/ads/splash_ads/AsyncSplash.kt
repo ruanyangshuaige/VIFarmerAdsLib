@@ -71,7 +71,7 @@ class AsyncSplash {
 
     private var listProductDetailCustoms: ArrayList<ProductDetailCustom> =
         arrayListOf() //comment for billing
-    private var timeOutSplash = 12000L
+    private var timeOutSplash = 60000L
     private var isLoopAdsSplash = false
     private var useTechManagerOrDetectTestAd = DETECT_TEST_AD
 
@@ -225,7 +225,7 @@ class AsyncSplash {
         this.isDebug = false
         this.isUseBilling = false
         this.listProductDetailCustoms = arrayListOf() //comment for billing
-        this.timeOutSplash = 12000L
+        this.timeOutSplash = 60000L
         this.isLoopAdsSplash = false
         this.useTechManagerOrDetectTestAd = DETECT_TEST_AD
         this.initRemoteConfig = false
@@ -251,6 +251,14 @@ class AsyncSplash {
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
         this.timeShowXButtonNativeAfterInter = 3000
+    }
+
+    fun setTimeOutCallSplashAds(timeOutCallSplashAds: Int) {
+        Admob.getInstance().timeOutCallSplashAds = timeOutCallSplashAds
+    }
+
+    fun setTimeOutCallInterAds(timeOutCallInterAds: Int) {
+        Admob.getInstance().timeOutCallInterAds = timeOutCallInterAds
     }
 
     fun setTimeOutShowXButtonNativeAfterInter(timeShowXButtonNativeAfterInter: Int) {

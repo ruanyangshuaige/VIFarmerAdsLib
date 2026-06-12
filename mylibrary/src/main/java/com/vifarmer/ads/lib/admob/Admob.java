@@ -113,9 +113,9 @@ public class Admob {
     private boolean isDetectTestAdByView = false;
     private int countClickInterSplashAds = 0;
     private NativeAd myNativeAd = null;
-    private int timeOutCallSplashAds = 12000;
-    private int timeOutCallInterAds = 12000;
-    private int timeOutCallRewardAds = 12000;
+    private int timeOutCallSplashAds = 52000;
+    private int timeOutCallInterAds = 42000;
+    private int timeOutCallRewardAds = 42000;
     //Log event 26/04/2025
     private long timeSplashLoadingAdShow = 0;
     //fix event time_splash_loading_show
@@ -639,20 +639,6 @@ public class Admob {
                             }
                         } else {
                             interCallback.onNextAction();
-                        }
-                    } else {
-                        /// can check neu truong hop load fail native after inter thi dismiss chuyen onnext
-                        Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: 1");
-                        if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
-                            Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: 2");
-                            if (isShowNativeAfterInter) {
-                                NativeAd nativeAd = NativeAfterInterManager.mapNativeAdsAfterInter.get(adsKeyNative);
-                                Log.d(TAG, "showInterAdsLoadAndShowWithNativeAfterInter - OnDismiss: " + nativeAd);
-                                if (nativeAd == null) {
-                                    interCallback.onNextAction();
-                                }
-
-                            }
                         }
                     }
                     isInterOrRewardedShowing = false;
