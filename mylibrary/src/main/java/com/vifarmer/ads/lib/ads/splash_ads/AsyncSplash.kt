@@ -317,6 +317,10 @@ class AsyncSplash {
         this.keyAdsInterSplash = keyAdsInterSplash
     }
 
+    fun getKeyAdsInterSplash(): String {
+        return this.keyAdsInterSplash
+    }
+
     fun setKeyAdsOpenSplash(keyAdsOpenSplash: String) {
         this.keyAdsOpenSplash = keyAdsOpenSplash
     }
