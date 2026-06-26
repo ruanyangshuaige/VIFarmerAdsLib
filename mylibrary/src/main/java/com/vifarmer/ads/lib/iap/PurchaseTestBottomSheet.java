@@ -13,6 +13,7 @@ import com.vifarmer.ads.lib.R;
 
 public class PurchaseTestBottomSheet extends BottomSheetDialog {
     private ProductDetails productDetails;
+    private String productId;
     private String typeIap;
     private TextView txtTitle;
     private TextView txtDescription;
@@ -21,8 +22,9 @@ public class PurchaseTestBottomSheet extends BottomSheetDialog {
     private TextView txtContinuePurchase;
     private PurchaseCallback purchaseCallback;
 
-    public PurchaseTestBottomSheet(String typeIap, ProductDetails productDetails, @NonNull Context context, PurchaseCallback purchaseCallback) {
+    public PurchaseTestBottomSheet(String typeIap, String productId, ProductDetails productDetails, @NonNull Context context, PurchaseCallback purchaseCallback) {
         super(context);
+        this.productId = productId;
         this.productDetails = productDetails;
         this.typeIap = typeIap;
         this.purchaseCallback = purchaseCallback;
@@ -38,7 +40,20 @@ public class PurchaseTestBottomSheet extends BottomSheetDialog {
         txtPrice = findViewById(R.id.txtPrice);
         txtContinuePurchase = findViewById(R.id.txtContinuePurchase);
         if (productDetails == null) {
+            txtTitle.setText("Test Product");
+            txtDescription.setText("This is a simulated purchase for testing.");
+            txtId.setText(productId);
+            txtPrice.setText("$0.00 (Test)");
 
+            txtContinuePurchase.setOnClickListener(v -> {
+                if (purchaseCallback != null) {
+                    if(!IAPManager.getInstance().isConsumable(productId)){
+                        IAPManager.getInstance().setPurchase(true);
+                    }
+                    purchaseCallback.onProductPurchased(productId, "{\"productId\":\"" + productId + "\",\"type\":\"inapp\",\"title\":\"Test Title\",\"description\":\"Test Description\"}");
+                }
+                dismiss();
+            });
         } else {
             txtTitle.setText(productDetails.getTitle());
             txtDescription.setText(productDetails.getDescription());
@@ -50,7 +65,9 @@ public class PurchaseTestBottomSheet extends BottomSheetDialog {
 
             txtContinuePurchase.setOnClickListener(v -> {
                 if (purchaseCallback != null) {
-                    IAPManager.getInstance().setPurchase(true);
+                    if(!IAPManager.getInstance().isConsumable(productId)){
+                        IAPManager.getInstance().setPurchase(true);
+                    }
                     purchaseCallback.onProductPurchased(productDetails.getProductId(), "{\"productId\":\"android.test.purchased\",\"type\":\"inapp\",\"title\":\"Tiêu đề mẫu\",\"description\":\"Mô tả mẫu về sản phẩm: android.test.purchased.\",\"skuDetailsToken\":\"AEuhp4Izz50wTvd7YM9wWjPLp8hZY7jRPhBEcM9GAbTYSdUM_v2QX85e8UYklstgqaRC\",\"oneTimePurchaseOfferDetails\":{\"priceAmountMicros\":23207002450,\"priceCurrencyCode\":\"VND\",\"formattedPrice\":\"23.207 ₫\"}}', parsedJson={\"productId\":\"android.test.purchased\",\"type\":\"inapp\",\"title\":\"Tiêu đề mẫu\",\"description\":\"Mô tả mẫu về sản phẩm: android.test.purchased.\",\"skuDetailsToken\":\"AEuhp4Izz50wTvd7YM9wWjPLp8hZY7jRPhBEcM9GAbTYSdUM_v2QX85e8UYklstgqaRC\",\"oneTimePurchaseOfferDetails\":{\"priceAmountMicros\":23207002450,\"priceCurrencyCode\":\"VND\",\"formattedPrice\":\"23.207 ₫\"}}, productId='android.test.purchased', productType='inapp', title='Tiêu đề mẫu', productDetailsToken='AEuhp4Izz50wTvd7YM9wWjPLp8hZY7jRPhBEcM9GAbTYSdUM_v2QX85e8UYklstgqaRC', subscriptionOfferDetails=null}");
                 }
                 dismiss();
