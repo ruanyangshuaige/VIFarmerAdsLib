@@ -6,13 +6,12 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.LayoutRes;
-import androidx.annotation.NonNull;
 
-import com.vifarmer.ads.lib.admob.AdmobApi;
-import com.vifarmer.ads.lib.callback.NativeCallback;
-import com.vifarmer.ads.lib.R;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.ads.nativead.NativeAdView;
+import com.vifarmer.ads.lib.R;
+import com.vifarmer.ads.lib.admob.AdmobApi;
+import com.vifarmer.ads.lib.callback.NativeCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,25 +20,13 @@ public class NativeBuilder {
     private static final String TAG = "NativeBuilder";
     private NativeCallback callback = new NativeCallback();
     List<String> listIdAdMain = new ArrayList<>();
-    List<String> listIdAdSecondary = new ArrayList<>();
-    List<String> listIdAdBackup = new ArrayList<>();
     NativeAdView nativeAdViewMain;
-    NativeAdView nativeAdViewSecondary;
     NativeAdView nativeMetaAdView;
     ShimmerFrameLayout shimmerFrameLayout;
     private FrameLayout flAd;
     private int layoutNativeAdmob;
     private int layoutNativeMeta;
     private int layoutShimmerNative;
-    public boolean useNewAdLoading = false;
-    public int maxRequestBackup = 1;
-    public int maxRequest = 1;
-    public int maxRequestReload = 1;
-
-    public NativeBuilder(Context context, @NonNull FrameLayout flAd, @LayoutRes int idLayoutShimmer, @LayoutRes int idLayoutNative, @LayoutRes int idLayoutNativeMeta, boolean useNewAdLoading) {
-        this.useNewAdLoading = useNewAdLoading;
-        setLayoutAds(context, flAd, idLayoutShimmer, idLayoutNative, idLayoutNativeMeta);
-    }
 
     public NativeBuilder(Context context, FrameLayout flAd, @LayoutRes int idLayoutShimmer, @LayoutRes int idLayoutNative, @LayoutRes int idLayoutNativeMeta) {
         setLayoutAds(context, flAd, idLayoutShimmer, idLayoutNative, idLayoutNativeMeta);
@@ -76,16 +63,6 @@ public class NativeBuilder {
             layoutShimmerNative = R.layout.ads_shimmer_large;
             shimmerFrameLayout = (ShimmerFrameLayout) LayoutInflater.from(context).inflate(R.layout.ads_shimmer_large, null);
         }
-
-        if (useNewAdLoading) {
-            flAd.removeAllViews();
-            nativeAdViewSecondary = (NativeAdView) LayoutInflater.from(context).inflate(idLayoutNativeMeta, null);
-            nativeAdViewMain.setVisibility(View.GONE);
-            nativeAdViewSecondary.setVisibility(View.GONE);
-            flAd.addView(nativeAdViewSecondary);
-            flAd.addView(nativeAdViewMain);
-            flAd.addView(shimmerFrameLayout);
-        }
     }
 
     public int getLayoutShimmerNative() {
@@ -116,34 +93,6 @@ public class NativeBuilder {
     public void setListIdAdMain(String nameIdAd) {
         this.listIdAdMain.clear();
         this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(nameIdAd));
-    }
-
-    public List<String> getListIdAdSecondary() {
-        return this.listIdAdSecondary;
-    }
-
-    public void setListIdAdSecondary(List<String> listIdAd) {
-        this.listIdAdSecondary.clear();
-        this.listIdAdSecondary.addAll(listIdAd);
-    }
-
-    public void setListIdAdSecondary(String nameIdAd) {
-        this.listIdAdSecondary.clear();
-        this.listIdAdSecondary.addAll(AdmobApi.getInstance().getListIDByName(nameIdAd));
-    }
-
-    public List<String> getListIdAdBackup() {
-        return this.listIdAdBackup;
-    }
-
-    public void setListIdAdBackup(List<String> listIdAd) {
-        this.listIdAdBackup.clear();
-        this.listIdAdBackup.addAll(listIdAd);
-    }
-
-    public void setListIdAdBackup(String nameIdAd) {
-        this.listIdAdBackup.clear();
-        this.listIdAdBackup.addAll(AdmobApi.getInstance().getListIDByName(nameIdAd));
     }
 
     public NativeCallback getCallback() {

@@ -270,8 +270,8 @@ public class AdmobApi {
         AppOpenManager.getInstance().loadAndShowAppOpenResumeSplash(activity, AdmobApi.getInstance().getListIDByName(adsKey), appOpenCallback);
     }
 
-    public void loadInterAdSplashFloor(AppCompatActivity activity, String adsKey, InterCallback interCallback) {
-        Admob.getInstance().loadAndShowInterAdSplash(activity, AdmobApi.getInstance().getListIDByName(adsKey), interCallback);
+    public void loadInterAdSplashFloor(AppCompatActivity activity, String adsKey, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
+        Admob.getInstance().loadAndShowInterAdSplash(activity, AdmobApi.getInstance().getListIDByName(adsKey), interCallback, adsKeyNative, remoteKeyNative);
     }
 
     public void loadInterAdSplashFloorDelayAds(AppCompatActivity activity, String adsKey, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
@@ -284,10 +284,6 @@ public class AdmobApi {
 
     public void loadOpenAppAdSplashLoop(AppCompatActivity activity, String adsKey, AppOpenCallback appOpenCallback) {
         AppOpenManager.getInstance().loadAndShowAppOpenResumeSplashLoop(activity, AdmobApi.getInstance().getListIDByName(adsKey), appOpenCallback);
-    }
-
-    public void loadInterAdSplashLoop(AppCompatActivity activity, String adsKey, InterCallback interCallback) {
-        Admob.getInstance().loadAndShowInterAdSplashLoop(activity, AdmobApi.getInstance().getListIDByName(adsKey), interCallback);
     }
 
     public void loadAndShowInterAdPreloadingSplash(AppCompatActivity activity, String adsKey, InterCallback interCallback, String adsKeyNative, String remoteKeyNative){

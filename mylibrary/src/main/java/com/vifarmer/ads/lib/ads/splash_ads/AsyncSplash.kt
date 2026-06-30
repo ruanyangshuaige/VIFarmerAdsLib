@@ -71,7 +71,7 @@ class AsyncSplash {
 
     private var listProductDetailCustoms: ArrayList<ProductDetailCustom> =
         arrayListOf() //comment for billing
-    private var timeOutSplash = 60000L
+    private var timeOutSplash = 68000L
     private var isLoopAdsSplash = false
     private var useTechManagerOrDetectTestAd = DETECT_TEST_AD
 
@@ -453,7 +453,13 @@ class AsyncSplash {
 
     fun checkShowSplashWhenFail() { //Call on resume of splash screen (Reshow splash ads when show fail)
         if (adsSplash != null) {
-            adsSplash?.onCheckShowSplashWhenFail(activity, appOpenCallback, interCallback)
+            adsSplash?.onCheckShowSplashWhenFail(
+                activity,
+                appOpenCallback,
+                interCallback,
+                keyNativeAfterInter,
+                keyNativeAfterInter
+            )
         }
     }
 

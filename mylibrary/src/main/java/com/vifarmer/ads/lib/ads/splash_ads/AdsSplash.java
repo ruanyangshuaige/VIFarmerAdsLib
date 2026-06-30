@@ -83,43 +83,33 @@ public class AdsSplash {
     public void showAdsSplashApi(AppCompatActivity activity, AppOpenCallback appOpenCallback, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
         Log.d(TAG, "state show: " + getState());
         if (AsyncSplash.Companion.getInstance().getUseAdPreloading()) {
-            Log.d(TAG, "AdsSplash preload: USE Preload " +getState());
+            Log.d(TAG, "AdsSplash preload: USE Preload " + getState());
             if (getState() == STATE.OPEN) {
-                AdmobApi.getInstance().loadAndShowAppOpenAdPreloadingSplash(activity,keyAdsOpenSplash, appOpenCallback);
+                AdmobApi.getInstance().loadAndShowAppOpenAdPreloadingSplash(activity, keyAdsOpenSplash, appOpenCallback);
             } else {
                 AdmobApi.getInstance().loadAndShowInterAdPreloadingSplash(activity, keyAdsInterSplash, interCallback, adsKeyNative, remoteKeyNative);
             }
         } else {
-            Log.d(TAG, "AdsSplash preload: USE Normal "+getState());
+            Log.d(TAG, "AdsSplash preload: USE Normal " + getState());
             if (getState() == STATE.OPEN) {
-                if (this.isLoopAdsSplash) {
-                    AdmobApi.getInstance().loadOpenAppAdSplashLoop(activity, keyAdsOpenSplash, appOpenCallback);
-                } else {
-                    AdmobApi.getInstance().loadOpenAppAdSplashFloor(activity, keyAdsOpenSplash, appOpenCallback);
-                }
+                AdmobApi.getInstance().loadOpenAppAdSplashFloor(activity, keyAdsOpenSplash, appOpenCallback);
             } else {
-                if (this.isLoopAdsSplash) {
-                    Log.d(TAG, "Show Ads 1");
-                    AdmobApi.getInstance().loadInterAdSplashLoop(activity, keyAdsInterSplash, interCallback);
+                if (!AsyncSplash.Companion.getInstance().getLoadAndShowIdInterAdSplashAsync()) {
+                    Log.d(TAG, "Show Ads 2");
+                    AdmobApi.getInstance().loadInterAdSplashFloor(activity, keyAdsInterSplash, interCallback, adsKeyNative, remoteKeyNative);
                 } else {
-                    if (!AsyncSplash.Companion.getInstance().getLoadAndShowIdInterAdSplashAsync()) {
-                        Log.d(TAG, "Show Ads 2");
-                    AdmobApi.getInstance().loadInterAdSplashFloor(activity, keyAdsInterSplash, interCallback);
-//                        AdmobApi.getInstance().loadInterAdSplashFloorDelayAds(activity, keyAdsInterSplash, interCallback, adsKeyNative, remoteKeyNative);
-                    } else {
-                        Log.d(TAG, "Show Ads 3");
-                        AdmobApi.getInstance().loadAndShowIdInterAdSplashAsync(activity, keyAdsInterSplash, interCallback);
-                    }
+                    Log.d(TAG, "Show Ads 3");
+                    AdmobApi.getInstance().loadAndShowIdInterAdSplashAsync(activity, keyAdsInterSplash, interCallback);
                 }
             }
         }
     }
 
-    public void onCheckShowSplashWhenFail(AppCompatActivity activity, AppOpenCallback appOpenCallback, InterCallback interCallback) {
+    public void onCheckShowSplashWhenFail(AppCompatActivity activity, AppOpenCallback appOpenCallback, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
         if (getState() == STATE.OPEN) {
             AppOpenManager.getInstance().onCheckShowSplashWhenFail(activity, appOpenCallback);
         } else if (getState() == STATE.INTER) {
-            Admob.getInstance().onCheckShowSplashWhenFail(activity, interCallback);
+            Admob.getInstance().onCheckShowSplashWhenFail(activity, interCallback, adsKeyNative, remoteKeyNative);
         }
     }
 }
