@@ -11,6 +11,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -46,8 +47,14 @@ class NativeAfterInterActivity : AppCompatActivity() {
         setContentView(R.layout.activity_native_after_inter)
 
         frAds = findViewById(R.id.fr_ads)
-        Log.d("Admob", "Native After Inter: Show Screen Native After Inter");
+        Log.d("Admob", "Native After Inter: Show Screen Native After Inter")
 
+        val onBackPressedCallback = object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+
+            }
+        }
+        onBackPressedDispatcher.addCallback(this, onBackPressedCallback)
     }
 
     override fun onResume() {
