@@ -10,6 +10,7 @@ import androidx.annotation.LayoutRes;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.vifarmer.ads.lib.R;
+import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
 import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 
@@ -90,9 +91,30 @@ public class NativeBuilder {
         this.listIdAdMain.addAll(listIdAd);
     }
 
-    public void setListIdAdMain(String nameIdAd) {
+    public void setListIdAdMainByListKey(Context context, List<String> listKey) {
         this.listIdAdMain.clear();
-        this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(nameIdAd));
+        for (String key : listKey) {
+            if (RemoteConfigHelper.getInstance().get_config(context, key)) {
+                this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(key));
+            }
+        }
+    }
+
+    public void setListIdAdMain(Context context, String nameIdAd) {
+        this.listIdAdMain.clear();
+        if (RemoteConfigHelper.getInstance().get_config(context, nameIdAd)) {
+            this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(nameIdAd));
+        }
+    }
+
+    public void setListIdAdMainWaterfall(Context context, String baseKey, String... suffixes) {
+        this.listIdAdMain.clear();
+        for (String suffix : suffixes) {
+            String targetKey = baseKey + suffix;
+            if (RemoteConfigHelper.getInstance().get_config(context, targetKey)) {
+                this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(targetKey));
+            }
+        }
     }
 
     public NativeCallback getCallback() {
