@@ -108,7 +108,7 @@ class AsyncSplash {
 
     //key native after inter
     private var keyNativeAfterInter = "native_after_inter"
-    private var suffixesNativeAfterInter: Array<String>? = null
+    private var listKeyNativeAfterInter: Array<String>? = null
 
     //
     private var isUseAppUpdateManager = false
@@ -249,7 +249,7 @@ class AsyncSplash {
         this.keyIntervalBetweenInterstitial = "interval_between_interstitial"
         this.keyIntervalInterstitialFromStart = "interval_interstitial_from_start"
         this.keyNativeAfterInter = "native_after_inter"
-        this.suffixesNativeAfterInter = null
+        this.listKeyNativeAfterInter = null
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
         this.timeShowXButtonNativeAfterInter = 3000
@@ -339,14 +339,13 @@ class AsyncSplash {
         this.keyNativeAfterInter = key
     }
 
-    fun setSuffixesNativeAfterInter(keyNativeAfterInter: String, vararg suffixes: String) {
+    fun setListKeyNativeAfterInter(vararg keys: String) {
         this.isShowNativeAfterInter = true
-        this.keyNativeAfterInter = keyNativeAfterInter
-        this.suffixesNativeAfterInter = suffixes.toList().toTypedArray()
+        this.listKeyNativeAfterInter = keys.toList().toTypedArray()
     }
 
-    fun getSuffixesNativeAfterInter(): Array<String>? {
-        return this.suffixesNativeAfterInter
+    fun getListKeyNativeAfterInter(): Array<String>? {
+        return this.listKeyNativeAfterInter
     }
 
     fun setAsyncSplashAds() { //Show splash ads without wait any thing

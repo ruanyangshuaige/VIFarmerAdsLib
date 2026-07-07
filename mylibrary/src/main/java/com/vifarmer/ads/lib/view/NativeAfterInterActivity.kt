@@ -35,7 +35,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
         var adsKey: String = "native_after_inter"
         var remoteKey: String = "native_after_inter"
         var timeDelayShowXButton: Int = 3000
-        var suffixes: Array<String>? = null
+        var listKeys: Array<String>? = null
     }
 
     @SuppressLint("MissingInflatedId")
@@ -92,7 +92,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
         super.onDestroy()
         adsKey = ""
         remoteKey = ""
-        suffixes = null
+        listKeys = null
     }
 
 

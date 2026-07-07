@@ -20,6 +20,7 @@ import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,18 +30,14 @@ public class NativeAfterInterManager {
     public static final Map<String, NativeAd> mapNativeAdsAfterInter = new HashMap<>();
 
     public static void preloadNativeAfterInter(Activity activity, String adsKey, String remoteKey) {
-        String[] suffixes = AsyncSplash.Companion.getInstance().getSuffixesNativeAfterInter();
-        preloadNativeAfterInter(activity, adsKey, suffixes, remoteKey);
-    }
-
-    public static void preloadNativeAfterInter(Activity activity, String adsKey, String[] suffixes, String remoteKey) {
-        if (suffixes != null && suffixes.length > 0) {
-            preloadDynamicWaterfallNativeAfterInter(activity, adsKey, suffixes, remoteKey);
+        String[] listKeys = AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter();
+        if (listKeys != null && listKeys.length > 0) {
+            preloadDynamicWaterfallNativeAfterInter(activity, adsKey, listKeys);
         } else {
             NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
             NativeAfterInterActivity.Companion.setAdsKey(adsKey);
             NativeAfterInterActivity.Companion.setRemoteKey(remoteKey);
-            NativeAfterInterActivity.Companion.setSuffixes(null);
+            NativeAfterInterActivity.Companion.setListKeys(null);
             Log.d(TAG, "NativeAfterInterManager: preloadNativeAfterInter - adskey = " + mapNativeAdsAfterInter.get(adsKey));
             if (mapNativeAdsAfterInter.get(adsKey) == null) {
                 Log.d(TAG, "NativeAfterInterManager: 1.preloadNativeAfterInter." + AdmobApi.getInstance().getListIDByName(adsKey));
@@ -68,25 +65,26 @@ public class NativeAfterInterManager {
     }
 
     /**
-     * @param baseAdsKey Tên key gốc (VD: "native_language")
-     * @param suffixes   Mảng các hậu tố theo thứ tự ưu tiên giảm dần (VD: new String[]{"_high", "_mid", ""})
+     * @param baseAdsKey Tên key gốc (Dùng để định danh nhóm waterfall này)
+     * @param listKeys   Danh sách các key đầy đủ theo thứ tự ưu tiên
      */
-    public static void preloadDynamicWaterfallNativeAfterInter(Activity activity, String baseAdsKey, String[] suffixes, String remoteKey) {
-        preloadDynamicWaterfallNativeAfterInter(activity, baseAdsKey, suffixes, remoteKey, 0);
-    }
-
-    private static void preloadDynamicWaterfallNativeAfterInter(Activity activity, String baseAdsKey, String[] suffixes, String remoteKey, int index) {
-        if (suffixes == null || index >= suffixes.length) return;
-
+    public static void preloadDynamicWaterfallNativeAfterInter(Activity activity, String baseAdsKey, String[] listKeys) {
         NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
         NativeAfterInterActivity.Companion.setAdsKey(baseAdsKey);
-        NativeAfterInterActivity.Companion.setRemoteKey(remoteKey);
-        NativeAfterInterActivity.Companion.setSuffixes(suffixes);
+        NativeAfterInterActivity.Companion.setListKeys(listKeys);
 
-        // Kiểm tra xem đã có bất kỳ quảng cáo nào trong waterfall này được load chưa
+        loadNativeWaterfall(activity, baseAdsKey, listKeys, 0);
+    }
+
+    private static void loadNativeWaterfall(Activity activity, String baseAdsKey, String[] listKeys, int index) {
+        if (listKeys == null || index >= listKeys.length) return;
+
+        String targetKey = listKeys[index];
+        List<String> ids = AdmobApi.getInstance().getListIDByName(targetKey);
+
         boolean alreadyHasAd = false;
-        for (String suffix : suffixes) {
-            if (mapNativeAdsAfterInter.get(baseAdsKey + suffix) != null) {
+        for (String key : listKeys) {
+            if (mapNativeAdsAfterInter.get(key) != null) {
                 alreadyHasAd = true;
                 break;
             }
@@ -97,18 +95,13 @@ public class NativeAfterInterManager {
             return;
         }
 
-        String targetKey = baseAdsKey + suffixes[index];
-        // use targetKey with remoteKey to check remote config
-        String targetRemoteKey = targetKey; 
-
-        List<String> ids = AdmobApi.getInstance().getListIDByName(targetKey);
-
         if (ids == null || ids.isEmpty()) {
-            Log.d(TAG, "NativeAfterInterManager: No IDs for " + targetKey + ", trying next suffix...");
-            preloadDynamicWaterfallNativeAfterInter(activity, baseAdsKey, suffixes, remoteKey, index + 1);
+            Log.d(TAG, "NativeAfterInterManager: No IDs for " + targetKey + ", trying next key...");
+            loadNativeWaterfall(activity, baseAdsKey, listKeys, index + 1);
             return;
         }
-        Log.d(TAG, "NativeAfterInterManager: Loading native for key: " + targetKey + "-with remoteKey: " + targetRemoteKey + "-ids Ads: "+ ids);
+
+        Log.d(TAG, "NativeAfterInterManager: Loading native for key: " + targetKey);
         Admob.getInstance().loadNativeAds(
                 activity,
                 ids,
@@ -123,10 +116,10 @@ public class NativeAfterInterManager {
                     @Override
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
-                        Log.d(TAG, "NativeAfterInterManager: Failed to load " + targetKey + ", trying next suffix...");
-                        preloadDynamicWaterfallNativeAfterInter(activity, baseAdsKey, suffixes, remoteKey, index + 1);
+                        Log.d(TAG, "NativeAfterInterManager: Failed to load " + targetKey + ", trying next key...");
+                        loadNativeWaterfall(activity, baseAdsKey, listKeys, index + 1);
                     }
-                }, targetRemoteKey
+                }, targetKey
         );
     }
 
@@ -134,16 +127,15 @@ public class NativeAfterInterManager {
         Log.d(TAG, "NativeAfterInterManager: showPreloadNativeAfterInter: adsKey = " + adsKey);
         int idLayoutNative = R.layout.native_after_inter;
         
-        String[] suffixes = NativeAfterInterActivity.Companion.getSuffixes();
+        String[] listKeys = NativeAfterInterActivity.Companion.getListKeys();
         NativeAd nativeAd = null;
         String loadedKey = adsKey;
 
-        if (suffixes != null) {
-            for (String suffix : suffixes) {
-                String targetKey = adsKey + suffix;
-                nativeAd = mapNativeAdsAfterInter.get(targetKey);
+        if (listKeys != null && listKeys.length > 0) {
+            for (String key : listKeys) {
+                nativeAd = mapNativeAdsAfterInter.get(key);
                 if (nativeAd != null) {
-                    loadedKey = targetKey;
+                    loadedKey = key;
                     Log.d(TAG, "NativeAfterInterManager: Found preloaded ad with key: " + loadedKey);
                     break;
                 }
@@ -187,8 +179,8 @@ public class NativeAfterInterManager {
         }
 
         // Trigger preload for the next time
-        if (suffixes != null) {
-            preloadDynamicWaterfallNativeAfterInter(activity, adsKey, suffixes, remoteKey);
+        if (listKeys != null && listKeys.length > 0) {
+            preloadDynamicWaterfallNativeAfterInter(activity, adsKey, listKeys);
         } else {
             preloadNativeAfterInter(activity, adsKey, remoteKey);
         }
