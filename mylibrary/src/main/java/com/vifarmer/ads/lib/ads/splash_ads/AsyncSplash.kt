@@ -95,6 +95,7 @@ class AsyncSplash {
     private var isShowNativeAfterInter = false
 
     private var isUseNativeSplash = false
+    private var isLoadWaterfallMultiKeyAdsIds = false
 
     //1.end
     //2.use for log event
@@ -339,7 +340,20 @@ class AsyncSplash {
         this.keyNativeAfterInter = key
     }
 
+    fun getKeyNativeAfterInter(): String {
+        return this.keyNativeAfterInter
+    }
+
+    fun getLoadWaterfallMultiKeyAdsIds(): Boolean {
+        return  this.isLoadWaterfallMultiKeyAdsIds
+    }
+
+    fun setLoadWaterfallMultiKeyAdsIds(isLoadWaterfall: Boolean){
+        this.isLoadWaterfallMultiKeyAdsIds = isLoadWaterfall
+    }
+
     fun setListKeyNativeAfterInter(vararg keys: String) {
+        this.isLoadWaterfallMultiKeyAdsIds = true
         this.isShowNativeAfterInter = true
         this.listKeyNativeAfterInter = keys.toList().toTypedArray()
     }

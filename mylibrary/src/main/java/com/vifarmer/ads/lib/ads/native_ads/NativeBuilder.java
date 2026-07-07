@@ -94,11 +94,9 @@ public class NativeBuilder {
 
     public void setListIdAdMainByListKey(List<String> listKey) {
         this.listIdAdMain.clear();
-        Log.d(TAG, "ListKey: " + listKey.size());
         for (String key : listKey) {
             this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(key));
         }
-        Log.d(TAG, "setListIdAdMainByListKey: " + listIdAdMain.size());
     }
 
     public void setListIdAdMain(String nameIdAd) {

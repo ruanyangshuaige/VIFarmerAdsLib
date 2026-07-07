@@ -20,7 +20,6 @@ import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 import com.vifarmer.ads.lib.view.NativeAfterInterActivity;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +30,8 @@ public class NativeAfterInterManager {
 
     public static void preloadNativeAfterInter(Activity activity, String adsKey, String remoteKey) {
         String[] listKeys = AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter();
-        if (listKeys != null && listKeys.length > 0) {
+        Boolean isLoadWaterfallMultiKeyAdsIds = AsyncSplash.Companion.getInstance().getLoadWaterfallMultiKeyAdsIds();
+        if (isLoadWaterfallMultiKeyAdsIds) {
             preloadDynamicWaterfallNativeAfterInter(activity, adsKey, listKeys);
         } else {
             NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
@@ -65,18 +65,17 @@ public class NativeAfterInterManager {
     }
 
     /**
-     * @param baseAdsKey Tên key gốc (Dùng để định danh nhóm waterfall này)
-     * @param listKeys   Danh sách các key đầy đủ theo thứ tự ưu tiên
+     * @param listKeys Danh sách các key đầy đủ theo thứ tự ưu tiên
      */
-    public static void preloadDynamicWaterfallNativeAfterInter(Activity activity, String baseAdsKey, String[] listKeys) {
+    public static void preloadDynamicWaterfallNativeAfterInter(Activity activity, String adsKey, String[] listKeys) {
         NativeAfterInterActivity.Companion.setTimeDelayShowXButton(AsyncSplash.Companion.getInstance().getTimeOutShowXButtonNativeAfterInter());
-        NativeAfterInterActivity.Companion.setAdsKey(baseAdsKey);
+        NativeAfterInterActivity.Companion.setAdsKey(adsKey);
         NativeAfterInterActivity.Companion.setListKeys(listKeys);
 
-        loadNativeWaterfall(activity, baseAdsKey, listKeys, 0);
+        loadNativeWaterfall(activity, adsKey, listKeys, 0);
     }
 
-    private static void loadNativeWaterfall(Activity activity, String baseAdsKey, String[] listKeys, int index) {
+    private static void loadNativeWaterfall(Activity activity, String adsKey, String[] listKeys, int index) {
         if (listKeys == null || index >= listKeys.length) return;
 
         String targetKey = listKeys[index];
@@ -91,13 +90,13 @@ public class NativeAfterInterManager {
         }
 
         if (alreadyHasAd) {
-            Log.d(TAG, "NativeAfterInterManager: Already has ad in waterfall for " + baseAdsKey);
+            Log.d(TAG, "NativeAfterInterManager: Already has ad in waterfall for " + adsKey);
             return;
         }
 
         if (ids == null || ids.isEmpty()) {
             Log.d(TAG, "NativeAfterInterManager: No IDs for " + targetKey + ", trying next key...");
-            loadNativeWaterfall(activity, baseAdsKey, listKeys, index + 1);
+            loadNativeWaterfall(activity, adsKey, listKeys, index + 1);
             return;
         }
 
@@ -117,7 +116,7 @@ public class NativeAfterInterManager {
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
                         Log.d(TAG, "NativeAfterInterManager: Failed to load " + targetKey + ", trying next key...");
-                        loadNativeWaterfall(activity, baseAdsKey, listKeys, index + 1);
+                        loadNativeWaterfall(activity, adsKey, listKeys, index + 1);
                     }
                 }, targetKey
         );
