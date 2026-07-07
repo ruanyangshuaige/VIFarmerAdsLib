@@ -52,6 +52,8 @@ public class AdmobApi {
         }
     }
 
+    LinkedHashMap<String, List<String>> listAds = new LinkedHashMap<>();
+
     public String getJsonIdAdsDefault() {
         return jsonIdAdsDefault;
     }
@@ -68,7 +70,6 @@ public class AdmobApi {
         this.timeOutCallApi = timeOutCallApi;
     }
 
-    LinkedHashMap<String, List<String>> listAds = new LinkedHashMap<>();
 
     public List<String> getListIDOpenSplash() {
         return getListIDByName("open_splash");
@@ -119,6 +120,16 @@ public class AdmobApi {
         if (listAds.get(nameAds.trim()) != null)
             list.addAll(Objects.requireNonNull(listAds.get(nameAds)));
         return list;
+    }
+
+    public String getNameByIdAds(String id) {
+        for (Map.Entry<String, List<String>> entry : listAds.entrySet()) {
+            List<String> values = entry.getValue();
+            if (values != null && values.contains(id)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     Gson gson = new GsonBuilder()

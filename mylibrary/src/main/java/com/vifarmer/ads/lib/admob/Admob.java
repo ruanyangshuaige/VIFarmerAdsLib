@@ -3458,6 +3458,113 @@ public class Admob {
 
         return myNativeAd;
     }
+    public NativeAd loadNativeAdsWaterfall(Context context, List<String> listIdNative, FrameLayout adContainerView, int layoutNative, int layoutNativeMeta, int layoutShimmerNative, boolean setShowNativeAfterLoaded, NativeCallback nativeCallback, IOnAdsImpression iOnAdsImpression) {
+        ArrayList<String> listIdNativeTemp = new ArrayList<>(listIdNative);
+        if (adContainerView != null) {
+            while (adContainerView.getChildCount() > 0) {
+                adContainerView.removeViewAt(0);
+            }
+        }
+        String adUnitId  = listIdNativeTemp.get(0);
+        AdLoader.Builder builder = new AdLoader.Builder(context, adUnitId);
+        String remoteKey = AdmobApi.getInstance().getNameByIdAds(adUnitId);
+        Log.d(TAG, "loadNativeAdsWaterfall: remoteKey "+remoteKey);
+        //Check condition
+        if (!NetworkUtil.isNetworkActive(context) || listIdNativeTemp.isEmpty() || !AdsConsentManager.getConsentResult(context) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(context, remoteKey)) {
+            Log.d(TAG, "loadNativeAdsWaterfall: Check condition. RemoteKey:" + remoteKey + "_Network:" + NetworkUtil.isNetworkActive(context) + "_IdEmpty:" + listIdNativeTemp.isEmpty() + "_UMP:" + AdsConsentManager.getConsentResult(context) + "_ShowAllAds:" + isShowAllAds + "_IAP:" + IAPManager.getInstance().isPurchase() + "_RemoteConfig:" + RemoteConfigHelper.getInstance().get_config(context, remoteKey));
+            nativeCallback.onAdFailedToLoad(new LoadAdError(2025, "Check condition", "Check condition", new AdError(2025, "Check condition", "Check condition"), null));
+            return null;
+        }
+        //log event can request ads
+        EventTrackingHelper.logEvent(context, remoteKey + "_true");
+        //end log event can request ads
+
+        //Show loading shimmer
+        View shimmerNative = LayoutInflater.from(context).inflate(layoutShimmerNative, null);
+        if (adContainerView != null) {
+            adContainerView.addView(shimmerNative);
+        }
+        // OnLoadedListener implementation.
+        builder.forNativeAd(nativeAd -> {
+            //Tracking revenue
+            nativeAd.setOnPaidEventListener(adValue -> {
+                //Adjust
+                if (nativeAd.getResponseInfo() != null) {
+                    AdjustUtil.trackRevenue(nativeAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdNativeTemp.get(0), remoteKey);
+                }
+            });
+            myNativeAd = nativeAd;
+            Log.i(TAG, "loadNativeAdsWaterfall: onAdLoaded. " + remoteKey);
+            nativeCallback.onNativeAdLoaded(nativeAd);
+            if (setShowNativeAfterLoaded) {
+                NativeAdView adView;
+                String mediationAdapterClassName = "";
+                if (nativeAd.getResponseInfo() != null) {
+                    mediationAdapterClassName = nativeAd.getResponseInfo().getMediationAdapterClassName();
+                }
+                if (mediationAdapterClassName != null && mediationAdapterClassName.toLowerCase().contains("facebook")) {
+                    adView = (NativeAdView) LayoutInflater.from(context).inflate(layoutNativeMeta, null);
+                } else {
+                    adView = (NativeAdView) LayoutInflater.from(context).inflate(layoutNative, null);
+                }
+                Admob.getInstance().populateNativeAdView(nativeAd, adView);
+                if (adContainerView != null) {
+                    adContainerView.removeAllViews();
+                    adContainerView.addView(adView);
+                }
+            }
+        });
+
+        VideoOptions videoOptions =
+                new VideoOptions.Builder().setStartMuted(true).build();
+
+        NativeAdOptions adOptions = new NativeAdOptions.Builder().setVideoOptions(videoOptions).build();
+
+        builder.withNativeAdOptions(adOptions);
+
+        AdLoader adLoader = builder.withAdListener(new AdListener() {
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                Log.e(TAG, "loadNativeAdsWaterfall: onAdFailedToLoad. " + loadAdError + ". " + remoteKey);
+                Bundle bundle = new Bundle();
+                bundle.putString("failed_message", limitString(loadAdError.getMessage(), 99));
+                if (loadAdError.getResponseInfo() != null && loadAdError.getResponseInfo().getLoadedAdapterResponseInfo() != null && loadAdError.getMessage().toLowerCase().contains("no fill")) {
+                    bundle.putString("no_fill_source", limitString(loadAdError.getResponseInfo().getLoadedAdapterResponseInfo().getAdSourceName(), 99));
+                }
+                EventTrackingHelper.logEventWithMultipleParams(context, remoteKey + "_failed", bundle);
+                nativeCallback.onAdFailedToLoad(loadAdError);
+                if (!listIdNativeTemp.isEmpty()) {
+                    listIdNativeTemp.remove(0);
+                }
+                loadNativeAdsWaterfall(context, listIdNativeTemp, adContainerView, layoutNative, layoutNativeMeta, layoutShimmerNative, setShowNativeAfterLoaded, nativeCallback, iOnAdsImpression);
+            }
+
+            @Override
+            public void onAdImpression() {
+                super.onAdImpression();
+                nativeCallback.onAdImpression();
+                iOnAdsImpression.onAdsImpression();
+                Log.d(TAG, "loadNativeAdsWaterfall: onAdImpression. " + remoteKey);
+                EventTrackingHelper.logEvent(context, remoteKey + "_view");
+            }
+
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+                nativeCallback.onAdClicked();
+                AppOpenManager.isLastActionClickAd = true;
+                Log.d(TAG, "loadNativeAdsWaterfall: onAdClicked. " + remoteKey);
+                EventTrackingHelper.logEvent(context, remoteKey + "_click");
+            }
+        }).build();
+
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+        if (timeHttpNative != -1) adRequestBuilder.setHttpTimeoutMillis(timeHttpNative);
+        AdRequest adRequest = adRequestBuilder.build();
+        adLoader.loadAd(adRequest);
+
+        return myNativeAd;
+    }
 
     public static String limitString(String str, int maxLength) {
         return str.length() > maxLength ? str.substring(0, maxLength) : str;

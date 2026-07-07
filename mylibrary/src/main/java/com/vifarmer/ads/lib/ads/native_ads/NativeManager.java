@@ -17,8 +17,9 @@ public class NativeManager implements LifecycleEventObserver {
     private final NativeBuilder builder;
     private final Context context;
     private final LifecycleOwner lifecycleOwner;
-    private final String remoteKey;
+    private String remoteKey;
     private NativeAd myNativeAdMain;
+    private Boolean isLoadWaterFall = false;
 
     public NativeManager(@NonNull Context context, LifecycleOwner lifecycleOwner, NativeBuilder builder, String remoteKey) {
         this.builder = builder;
@@ -26,6 +27,14 @@ public class NativeManager implements LifecycleEventObserver {
         this.remoteKey = remoteKey;
         this.lifecycleOwner = lifecycleOwner;
         this.lifecycleOwner.getLifecycle().addObserver(this);
+    }
+
+    public NativeManager(@NonNull Context context, LifecycleOwner lifecycleOwner, NativeBuilder builder, Boolean isLoadWaterFall) {
+        this.builder = builder;
+        this.context = context;
+        this.lifecycleOwner = lifecycleOwner;
+        this.lifecycleOwner.getLifecycle().addObserver(this);
+        this.isLoadWaterFall = isLoadWaterFall;
     }
 
     @Override
@@ -56,12 +65,22 @@ public class NativeManager implements LifecycleEventObserver {
             myNativeAdMain.destroy();
         }
         if (!builder.getListIdAdMain().isEmpty()) {
-            myNativeAdMain = Admob.getInstance().loadNativeAds(context, builder.getListIdAdMain(), builder.getFlAd(), builder.getLayoutNativeAdmob(), builder.getLayoutNativeMeta(), builder.getLayoutShimmerNative(), true, builder.getCallback(), new IOnAdsImpression() {
-                @Override
-                public void onAdsImpression() {
+            if(isLoadWaterFall){
+                myNativeAdMain = Admob.getInstance().loadNativeAdsWaterfall(context, builder.getListIdAdMain(), builder.getFlAd(), builder.getLayoutNativeAdmob(), builder.getLayoutNativeMeta(), builder.getLayoutShimmerNative(), true, builder.getCallback(), new IOnAdsImpression() {
+                    @Override
+                    public void onAdsImpression() {
 
-                }
-            }, remoteKey);
+                    }
+                });
+            }else {
+                myNativeAdMain = Admob.getInstance().loadNativeAds(context, builder.getListIdAdMain(), builder.getFlAd(), builder.getLayoutNativeAdmob(), builder.getLayoutNativeMeta(), builder.getLayoutShimmerNative(), true, builder.getCallback(), new IOnAdsImpression() {
+                    @Override
+                    public void onAdsImpression() {
+
+                    }
+                }, remoteKey);
+            }
+
         }
     }
 }

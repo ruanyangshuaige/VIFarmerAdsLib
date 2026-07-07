@@ -78,8 +78,11 @@ public class MainActivity extends AppCompatActivity {
                 com.vifarmer.ads.lib.R.layout.layout_shimmer_native,
                 R.layout.native_large_ads_with_button_above,
                 com.vifarmer.ads.lib.R.layout.layout_native_adview);
-        nativeBuilder.setListIdAdMain(List.of("ca-app-pub-3940256099942544/2247696110"));
-        NativeManager nativeManager = new NativeManager(this, this, nativeBuilder, "native_wb");
+//        nativeBuilder.setListIdAdMain(List.of("ca-app-pub-3940256099942544/2247696110"));
+        nativeBuilder.setListIdAdMainByListKey(
+                List.of("native_full_splash_2f", "native_full_splash")
+        );
+        NativeManager nativeManager = new NativeManager(this, this, nativeBuilder,true);
 
         /*BannerBuilder bannerBuilder = new BannerBuilder(this, binding.adViewContainer, true);
         bannerBuilder.setListIdAdMain(AdmobApi.getInstance().getListIDByName("banner_all"));

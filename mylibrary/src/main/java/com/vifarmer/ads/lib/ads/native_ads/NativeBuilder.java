@@ -1,6 +1,7 @@
 package com.vifarmer.ads.lib.ads.native_ads;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -10,6 +11,7 @@ import androidx.annotation.LayoutRes;
 import com.facebook.shimmer.ShimmerFrameLayout;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.vifarmer.ads.lib.R;
+import com.vifarmer.ads.lib.Utils.RemoteConfigHelper;
 import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.callback.NativeCallback;
 
@@ -92,9 +94,11 @@ public class NativeBuilder {
 
     public void setListIdAdMainByListKey(List<String> listKey) {
         this.listIdAdMain.clear();
+        Log.d(TAG, "ListKey: " + listKey.size());
         for (String key : listKey) {
             this.listIdAdMain.addAll(AdmobApi.getInstance().getListIDByName(key));
         }
+        Log.d(TAG, "setListIdAdMainByListKey: " + listIdAdMain.size());
     }
 
     public void setListIdAdMain(String nameIdAd) {
