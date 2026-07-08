@@ -29,8 +29,8 @@ public class NativeAfterInterManager {
     public static final Map<String, NativeAd> mapNativeAdsAfterInter = new HashMap<>();
 
     public static void preloadNativeAfterInter(Activity activity, String adsKey, String remoteKey) {
-        String[] listKeys = AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter();
-        Boolean isLoadWaterfallMultiKeyAdsIds = AsyncSplash.Companion.getInstance().getLoadWaterfallMultiKeyAdsIds();
+        String[] listKeys = AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter().toArray(new String[0]);
+        boolean isLoadWaterfallMultiKeyAdsIds = AsyncSplash.Companion.getInstance().getLoadWaterfallNativeFullSplashMultiKeyAdsIds();
         if (isLoadWaterfallMultiKeyAdsIds) {
             preloadDynamicWaterfallNativeAfterInter(activity, adsKey, listKeys);
         } else {

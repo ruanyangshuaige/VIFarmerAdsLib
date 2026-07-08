@@ -11,12 +11,9 @@ import androidx.lifecycle.LifecycleOwnerKt;
 import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.callback.AppOpenCallback;
 import com.vifarmer.ads.lib.callback.InterCallback;
-import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 /*import com.amazic.library.iap.IAPManager;
 import com.amazic.library.iap.ProductDetailCustom;*/
-import com.vifarmer.ads.lib.iap.IAPManager;
-import com.vifarmer.ads.lib.iap.ProductDetailCustom;
 import com.vifarmer.ads.lib.update_app.UpdateApplicationManager;
 import com.diamondguide.redeemcode.ffftips.databinding.ActivitySplashBinding;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -24,7 +21,6 @@ import com.google.android.play.core.install.InstallStateUpdatedListener;
 import com.google.android.play.core.install.model.InstallStatus;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
@@ -158,7 +154,7 @@ public class SplashActivity extends AppCompatActivity {
 //            AsyncSplash.Companion.getInstance().setInitWelcomeBackBelowResumeAds(WelcomeBackActivity.class); //init resume ads with welcome back below
             ArrayList<String> listTurnOffRemote = new ArrayList<>();
             //listTurnOffRemote.add("native_wb");
-            AsyncSplash.Companion.getInstance().setListKeyNativeAfterInter("native_full_splash_2f", "native_full_splash");
+            AsyncSplash.Companion.getInstance().setListKeyNativeAfterInterSplash("native_full_splash_2f", "native_full_splash");
             AsyncSplash.Companion.getInstance().setListKeyInterSplash("inter_splash_2f", "inter_splash");
             AsyncSplash.Companion.getInstance().setKeyNativeAfterInter("native_after_inter");
             AsyncSplash.Companion.getInstance().setListTurnOffRemoteKeys(listTurnOffRemote); //set list off remote of TechManager

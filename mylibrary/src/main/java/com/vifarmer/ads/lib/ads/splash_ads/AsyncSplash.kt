@@ -95,7 +95,7 @@ class AsyncSplash {
     private var isShowNativeAfterInter = false
 
     private var isUseNativeSplash = false
-    private var isLoadWaterfallNativeMultiKeyAdsIds = false
+    private var isLoadWaterfallNativeFullSplashMultiKeyAdsIds = false
     private var isLoadWaterfallInterSplashMultiKeyAdsIds = false
 
     //1.end
@@ -110,7 +110,7 @@ class AsyncSplash {
 
     //key native after inter
     private var keyNativeAfterInter = "native_after_inter"
-    private var listKeyNativeAfterInter: Array<String>? = null
+    private var listKeyNativeAfterInterSplash: MutableList<String> = mutableListOf()
     private var listKeyInterSplash: MutableList<String> = mutableListOf()
 
     //
@@ -252,9 +252,9 @@ class AsyncSplash {
         this.keyIntervalBetweenInterstitial = "interval_between_interstitial"
         this.keyIntervalInterstitialFromStart = "interval_interstitial_from_start"
         this.keyNativeAfterInter = "native_after_inter"
-        this.listKeyNativeAfterInter = null
+        this.listKeyNativeAfterInterSplash = mutableListOf()
         this.listKeyInterSplash = mutableListOf()
-        this.isLoadWaterfallNativeMultiKeyAdsIds = false
+        this.isLoadWaterfallNativeFullSplashMultiKeyAdsIds = false
         this.isLoadWaterfallInterSplashMultiKeyAdsIds = false
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
@@ -349,26 +349,26 @@ class AsyncSplash {
         return this.keyNativeAfterInter
     }
 
-    fun getLoadWaterfallMultiKeyAdsIds(): Boolean {
-        return this.isLoadWaterfallNativeMultiKeyAdsIds
+    fun getLoadWaterfallNativeFullSplashMultiKeyAdsIds(): Boolean {
+        return this.isLoadWaterfallNativeFullSplashMultiKeyAdsIds
     }
 
-    fun setLoadWaterfallMultiKeyAdsIds(isLoadWaterfall: Boolean){
-        this.isLoadWaterfallNativeMultiKeyAdsIds = isLoadWaterfall
+    fun setLoadWaterfallNativeFullSplashMultiKeyAdsIds(isLoadWaterfall: Boolean){
+        this.isLoadWaterfallNativeFullSplashMultiKeyAdsIds = isLoadWaterfall
     }
 
     fun getLoadWaterfallInterSplashMultiKeyAdsIds(): Boolean {
         return this.isLoadWaterfallInterSplashMultiKeyAdsIds
     }
 
-    fun setListKeyNativeAfterInter(vararg keys: String) {
-        this.isLoadWaterfallNativeMultiKeyAdsIds = true
+    fun setListKeyNativeAfterInterSplash(vararg keys: String) {
+        this.isLoadWaterfallNativeFullSplashMultiKeyAdsIds = true
         this.isShowNativeAfterInter = true
-        this.listKeyNativeAfterInter = keys.toList().toTypedArray()
+        this.listKeyNativeAfterInterSplash = keys.toList().toTypedArray().toMutableList()
     }
 
-    fun getListKeyNativeAfterInter(): Array<String>? {
-        return this.listKeyNativeAfterInter
+    fun getListKeyNativeAfterInter(): MutableList<String> {
+        return this.listKeyNativeAfterInterSplash
     }
 
     fun setListKeyInterSplash(vararg keys: String) {

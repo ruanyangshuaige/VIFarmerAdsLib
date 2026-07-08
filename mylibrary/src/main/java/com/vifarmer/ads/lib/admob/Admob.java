@@ -2298,7 +2298,20 @@ public class Admob {
 
     public void loadInterAdSplashFloorMultiKeyAds(AppCompatActivity activity, List<String> listIdInter, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
         NativeAfterInterManager.preloadNativeAfterInter(activity, adsKeyNative, remoteKeyNative);
-        boolean isShowNativeAfterInter = RemoteConfigHelper.getInstance().get_config(activity, remoteKeyNative);
+        boolean isShowNativeAfterInter;
+
+        if (AsyncSplash.Companion.getInstance().getLoadWaterfallNativeFullSplashMultiKeyAdsIds()) {
+            //Chỉ cần 1 key trong list native full splash key bật thì đủ điều kiện chuyển sang NativeAfterInterActivity
+            boolean oneKeyOn = false;
+            for (String remoteKey : AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter()) {
+                if (RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
+                    oneKeyOn = true;
+                }
+            }
+            isShowNativeAfterInter = oneKeyOn;
+        } else {
+            isShowNativeAfterInter = RemoteConfigHelper.getInstance().get_config(activity, remoteKeyNative);
+        }
 
         ArrayList<String> listIdInterTemp = new ArrayList<>(listIdInter);
         //Set timeout ads splash x(s) if cannot load
