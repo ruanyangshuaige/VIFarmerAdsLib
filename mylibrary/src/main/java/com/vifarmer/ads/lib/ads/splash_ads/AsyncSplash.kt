@@ -95,7 +95,8 @@ class AsyncSplash {
     private var isShowNativeAfterInter = false
 
     private var isUseNativeSplash = false
-    private var isLoadWaterfallMultiKeyAdsIds = false
+    private var isLoadWaterfallNativeMultiKeyAdsIds = false
+    private var isLoadWaterfallInterSplashMultiKeyAdsIds = false
 
     //1.end
     //2.use for log event
@@ -110,6 +111,7 @@ class AsyncSplash {
     //key native after inter
     private var keyNativeAfterInter = "native_after_inter"
     private var listKeyNativeAfterInter: Array<String>? = null
+    private var listKeyInterSplash: MutableList<String> = mutableListOf()
 
     //
     private var isUseAppUpdateManager = false
@@ -251,6 +253,9 @@ class AsyncSplash {
         this.keyIntervalInterstitialFromStart = "interval_interstitial_from_start"
         this.keyNativeAfterInter = "native_after_inter"
         this.listKeyNativeAfterInter = null
+        this.listKeyInterSplash = mutableListOf()
+        this.isLoadWaterfallNativeMultiKeyAdsIds = false
+        this.isLoadWaterfallInterSplashMultiKeyAdsIds = false
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
         this.timeShowXButtonNativeAfterInter = 3000
@@ -345,15 +350,19 @@ class AsyncSplash {
     }
 
     fun getLoadWaterfallMultiKeyAdsIds(): Boolean {
-        return  this.isLoadWaterfallMultiKeyAdsIds
+        return this.isLoadWaterfallNativeMultiKeyAdsIds
     }
 
     fun setLoadWaterfallMultiKeyAdsIds(isLoadWaterfall: Boolean){
-        this.isLoadWaterfallMultiKeyAdsIds = isLoadWaterfall
+        this.isLoadWaterfallNativeMultiKeyAdsIds = isLoadWaterfall
+    }
+
+    fun getLoadWaterfallInterSplashMultiKeyAdsIds(): Boolean {
+        return this.isLoadWaterfallInterSplashMultiKeyAdsIds
     }
 
     fun setListKeyNativeAfterInter(vararg keys: String) {
-        this.isLoadWaterfallMultiKeyAdsIds = true
+        this.isLoadWaterfallNativeMultiKeyAdsIds = true
         this.isShowNativeAfterInter = true
         this.listKeyNativeAfterInter = keys.toList().toTypedArray()
     }
@@ -362,7 +371,16 @@ class AsyncSplash {
         return this.listKeyNativeAfterInter
     }
 
-    fun setAsyncSplashAds() { //Show splash ads without wait any thing
+    fun setListKeyInterSplash(vararg keys: String) {
+        this.isLoadWaterfallInterSplashMultiKeyAdsIds = true
+        this.listKeyInterSplash = keys.toList().toTypedArray().toMutableList()
+    }
+
+    fun getListKeyInterSplash(): MutableList<String> {
+        return this.listKeyInterSplash
+    }
+
+    fun setAsyncSplashAds() { //Show splash ads without wait anything
         this.isAsyncSplashAds = true
     }
 

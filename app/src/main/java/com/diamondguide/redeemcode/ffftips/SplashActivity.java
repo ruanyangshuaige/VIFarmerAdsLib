@@ -158,7 +158,9 @@ public class SplashActivity extends AppCompatActivity {
 //            AsyncSplash.Companion.getInstance().setInitWelcomeBackBelowResumeAds(WelcomeBackActivity.class); //init resume ads with welcome back below
             ArrayList<String> listTurnOffRemote = new ArrayList<>();
             //listTurnOffRemote.add("native_wb");
-            AsyncSplash.Companion.getInstance().setListKeyNativeAfterInter("native_after_inter","native_full_splash_2f", "native_full_splash");
+            AsyncSplash.Companion.getInstance().setListKeyNativeAfterInter("native_full_splash_2f", "native_full_splash");
+            AsyncSplash.Companion.getInstance().setListKeyInterSplash("inter_splash_2f", "inter_splash");
+            AsyncSplash.Companion.getInstance().setKeyNativeAfterInter("native_after_inter");
             AsyncSplash.Companion.getInstance().setListTurnOffRemoteKeys(listTurnOffRemote); //set list off remote of TechManager
 //            ArrayList<String> listIdBannerSplash = new ArrayList<>();
 //            listIdBannerSplash.add("ca-app-pub-3940256099942544/6300978111");

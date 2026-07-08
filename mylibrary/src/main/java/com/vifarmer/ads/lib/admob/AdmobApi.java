@@ -9,6 +9,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.vifarmer.ads.lib.Utils.NetworkUtil;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
+import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.call_api.AdsModel;
 import com.vifarmer.ads.lib.call_api.ApiService;
 import com.vifarmer.ads.lib.callback.ApiCallback;
@@ -283,6 +284,14 @@ public class AdmobApi {
 
     public void loadInterAdSplashFloor(AppCompatActivity activity, String adsKey, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
         Admob.getInstance().loadAndShowInterAdSplash(activity, AdmobApi.getInstance().getListIDByName(adsKey), interCallback, adsKeyNative, remoteKeyNative);
+    }
+
+    public void loadInterAdSplashFloorMultiKeyAds(AppCompatActivity activity, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
+        ArrayList<String> listIdWaterfallMultiKeyInterSplash = new ArrayList<>();
+        for (String key : AsyncSplash.Companion.getInstance().getListKeyInterSplash()) {
+            listIdWaterfallMultiKeyInterSplash.addAll(AdmobApi.getInstance().getListIDByName(key));
+        }
+        Admob.getInstance().loadInterAdSplashFloorMultiKeyAds(activity, listIdWaterfallMultiKeyInterSplash, interCallback, adsKeyNative, remoteKeyNative);
     }
 
     public void loadInterAdSplashFloorDelayAds(AppCompatActivity activity, String adsKey, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {

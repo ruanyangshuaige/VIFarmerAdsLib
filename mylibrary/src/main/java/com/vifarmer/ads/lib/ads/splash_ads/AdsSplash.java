@@ -95,10 +95,15 @@ public class AdsSplash {
                 AdmobApi.getInstance().loadOpenAppAdSplashFloor(activity, keyAdsOpenSplash, appOpenCallback);
             } else {
                 if (!AsyncSplash.Companion.getInstance().getLoadAndShowIdInterAdSplashAsync()) {
-                    Log.d(TAG, "Show Ads 2");
-                    AdmobApi.getInstance().loadInterAdSplashFloor(activity, keyAdsInterSplash, interCallback, adsKeyNative, remoteKeyNative);
+                    if (!AsyncSplash.Companion.getInstance().getLoadWaterfallInterSplashMultiKeyAdsIds()) {
+                        Log.d(TAG, "Show Ads 2");
+                        AdmobApi.getInstance().loadInterAdSplashFloor(activity, keyAdsInterSplash, interCallback, adsKeyNative, remoteKeyNative);
+                    } else {
+                        Log.d(TAG, "Show Ads 3");
+                        AdmobApi.getInstance().loadInterAdSplashFloorMultiKeyAds(activity, interCallback, adsKeyNative, remoteKeyNative);
+                    }
                 } else {
-                    Log.d(TAG, "Show Ads 3");
+                    Log.d(TAG, "Show Ads 4");
                     AdmobApi.getInstance().loadAndShowIdInterAdSplashAsync(activity, keyAdsInterSplash, interCallback);
                 }
             }

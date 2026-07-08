@@ -19,7 +19,7 @@ public class NativeManager implements LifecycleEventObserver {
     private final LifecycleOwner lifecycleOwner;
     private String remoteKey;
     private NativeAd myNativeAdMain;
-    private Boolean isLoadWaterFall = false;
+    private Boolean isLoadWaterFallMultiKeyAds = false;
 
     public NativeManager(@NonNull Context context, LifecycleOwner lifecycleOwner, NativeBuilder builder, String remoteKey) {
         this.builder = builder;
@@ -29,12 +29,12 @@ public class NativeManager implements LifecycleEventObserver {
         this.lifecycleOwner.getLifecycle().addObserver(this);
     }
 
-    public NativeManager(@NonNull Context context, LifecycleOwner lifecycleOwner, NativeBuilder builder, Boolean isLoadWaterFall) {
+    public NativeManager(@NonNull Context context, LifecycleOwner lifecycleOwner, NativeBuilder builder, Boolean isLoadWaterFallMultiKeyAds) {
         this.builder = builder;
         this.context = context;
         this.lifecycleOwner = lifecycleOwner;
         this.lifecycleOwner.getLifecycle().addObserver(this);
-        this.isLoadWaterFall = isLoadWaterFall;
+        this.isLoadWaterFallMultiKeyAds = isLoadWaterFallMultiKeyAds;
     }
 
     @Override
@@ -65,8 +65,8 @@ public class NativeManager implements LifecycleEventObserver {
             myNativeAdMain.destroy();
         }
         if (!builder.getListIdAdMain().isEmpty()) {
-            if(isLoadWaterFall){
-                myNativeAdMain = Admob.getInstance().loadNativeAdsWaterfall(context, builder.getListIdAdMain(), builder.getFlAd(), builder.getLayoutNativeAdmob(), builder.getLayoutNativeMeta(), builder.getLayoutShimmerNative(), true, builder.getCallback(), new IOnAdsImpression() {
+            if(isLoadWaterFallMultiKeyAds){
+                myNativeAdMain = Admob.getInstance().loadNativeAdsWaterfallMultiKeyAds(context, builder.getListIdAdMain(), builder.getFlAd(), builder.getLayoutNativeAdmob(), builder.getLayoutNativeMeta(), builder.getLayoutShimmerNative(), true, builder.getCallback(), new IOnAdsImpression() {
                     @Override
                     public void onAdsImpression() {
 
