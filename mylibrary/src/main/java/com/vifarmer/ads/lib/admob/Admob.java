@@ -3454,9 +3454,13 @@ public class Admob {
     public void loadNativeAdsWaterfallMultiKeyAds(Context activity, List<String> listIdNative, NativeCallback nativeCallback) {
         ArrayList<String> listIdNativeTemp = new ArrayList<>(listIdNative);
 
-        String adUnitId = listIdNativeTemp.get(0);
+        String adUnitId = "";
+        if (!listIdNativeTemp.isEmpty()) {
+            adUnitId = listIdNativeTemp.get(0);
+        }
         AdLoader.Builder builder = new AdLoader.Builder(activity, adUnitId);
         String remoteKey = AdmobApi.getInstance().getNameByIdAds(adUnitId);
+        Log.d(TAG, "loadNativeAdsWaterfallMultiKeyAds: remoteKey " + remoteKey);
 
         //Check condition
         if (!NetworkUtil.isNetworkActive(activity) || listIdNativeTemp.isEmpty() || !AdsConsentManager.getConsentResult(activity) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
@@ -3646,7 +3650,7 @@ public class Admob {
         }
         AdLoader.Builder builder = new AdLoader.Builder(context, adUnitId);
         String remoteKey = AdmobApi.getInstance().getNameByIdAds(adUnitId);
-        Log.d(TAG, "loadNativeAdsWaterfallMultiKeyAds: remoteKey " + remoteKey);
+        Log.d(TAG, "loadAndShowNativeAdsWaterfallMultiKeyAds: remoteKey " + remoteKey);
         //Check condition
         if (!NetworkUtil.isNetworkActive(context) || listIdNativeTemp.isEmpty() || !AdsConsentManager.getConsentResult(context) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(context, remoteKey)) {
             Log.d(TAG, "loadNativeAdsWaterfall: Check condition. RemoteKey:" + remoteKey + "_Network:" + NetworkUtil.isNetworkActive(context) + "_IdEmpty:" + listIdNativeTemp.isEmpty() + "_UMP:" + AdsConsentManager.getConsentResult(context) + "_ShowAllAds:" + isShowAllAds + "_IAP:" + IAPManager.getInstance().isPurchase() + "_RemoteConfig:" + RemoteConfigHelper.getInstance().get_config(context, remoteKey));
