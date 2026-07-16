@@ -167,6 +167,11 @@ public class AppOpenManager implements Application.ActivityLifecycleCallbacks, D
         return (dateDifference < (numMilliSecondsPerHour * numHours));
     }
 
+    public AppOpenAd getAppOpenAd(){
+        Log.d(TAG, "getAppOpenAd: " + appOpenAd);
+        return appOpenAd;
+    }
+
     private boolean isAdAvailable() {
         Log.d(TAG, "isAdAvailable: appOpenAd = " + appOpenAd + "-wasLoadTimeLessThanNHoursAgo: " + wasLoadTimeLessThanNHoursAgo(4));
         return appOpenAd != null && wasLoadTimeLessThanNHoursAgo(4);
