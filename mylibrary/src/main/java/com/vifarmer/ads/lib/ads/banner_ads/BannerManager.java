@@ -17,6 +17,7 @@ import androidx.lifecycle.LifecycleEventObserver;
 import androidx.lifecycle.LifecycleOwner;
 
 import com.vifarmer.ads.lib.admob.Admob;
+import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.BannerCallback;
 
 public class BannerManager implements LifecycleEventObserver {
@@ -27,24 +28,17 @@ public class BannerManager implements LifecycleEventObserver {
     private boolean isReloadAds = false;
     private boolean isAlwaysReloadOnResume = false;
     private long intervalReloadBanner = 0;
-    private boolean isStop = false;
-    private CountDownTimer countDownTimer;
     private Context context;
     private int adWidth;
     private boolean isLoadBannerFragment = false;
     private final String remoteKey;
-    private String remoteKeySecondary = "";
-    private String remoteKeyBackup = "";
-    private boolean isLoadedBannerMain = false;
-    private boolean isLoadedBannerSecondary = false;
+    private Boolean isLoadWaterFallMultiKeyAds = false;
 
     public BannerManager(@NonNull Activity currentActivity, LifecycleOwner lifecycleOwner, BannerBuilder builder, String remoteKey) {
         this.isLoadBannerFragment = false;
         this.builder = builder;
         this.currentActivity = currentActivity;
         this.remoteKey = remoteKey;
-        this.remoteKeySecondary = remoteKey;
-        this.remoteKeyBackup = remoteKey;
         this.lifecycleOwner = lifecycleOwner;
         this.lifecycleOwner.getLifecycle().addObserver(this);
     }
@@ -55,8 +49,17 @@ public class BannerManager implements LifecycleEventObserver {
         this.context = context;
         this.adWidth = adWidth;
         this.remoteKey = remoteKey;
-        this.remoteKeySecondary = remoteKey;
-        this.remoteKeyBackup = remoteKey;
+        this.lifecycleOwner = lifecycleOwner;
+        this.lifecycleOwner.getLifecycle().addObserver(this);
+    }
+
+    public BannerManager(Context context, int adWidth, LifecycleOwner lifecycleOwner, BannerBuilder builder, Boolean isLoadWaterFallMultiKeyAds){
+        this.remoteKey = "";
+        this.isLoadBannerFragment = true;
+        this.isLoadWaterFallMultiKeyAds = isLoadWaterFallMultiKeyAds;
+        this.builder = builder;
+        this.context = context;
+        this.adWidth = adWidth;
         this.lifecycleOwner = lifecycleOwner;
         this.lifecycleOwner.getLifecycle().addObserver(this);
     }
@@ -69,23 +72,10 @@ public class BannerManager implements LifecycleEventObserver {
                 reloadAdNow();
                 break;
             case ON_RESUME:
-                if (countDownTimer != null && isStop) {
-                    startReloadBanner();
-                }
-                String valueLog = isStop + " && " + (isReloadAds || isAlwaysReloadOnResume);
-                Log.d(TAG, "onStateChanged: resume\n" + valueLog);
-                if (isStop && (isReloadAds || isAlwaysReloadOnResume)) {
-                    isReloadAds = false;
-                    reloadAdNow();
-                }
-                isStop = false;
+                Log.d(TAG, "onStateChanged: resume");
                 break;
             case ON_PAUSE:
                 Log.d(TAG, "onStateChanged: ON_PAUSE");
-                isStop = true;
-                if (countDownTimer != null) {
-                    countDownTimer.cancel();
-                }
                 break;
             case ON_DESTROY:
                 Log.d(TAG, "onStateChanged: ON_DESTROY");
@@ -95,9 +85,6 @@ public class BannerManager implements LifecycleEventObserver {
                 if (builder.bannerAdViewMain != null) {
                     builder.bannerAdViewMain.destroy();
                 }
-                if (builder.bannerAdViewSecondary != null) {
-                    builder.bannerAdViewSecondary.destroy();
-                }
                 this.lifecycleOwner.getLifecycle().removeObserver(this);
                 break;
         }
@@ -106,7 +93,15 @@ public class BannerManager implements LifecycleEventObserver {
     private void loadBanner(FrameLayout frContainer) {
         Log.d(TAG, "loadBanner: " + builder.getListIdAdMain());
         if (Admob.getInstance().getShowAllAds()) {
-            Admob.getInstance().loadBannerAds(currentActivity, builder.getListIdAdMain(), frContainer, builder.getCallBack(), this::startReloadBanner, remoteKey);
+            if(AsyncSplash.Companion.getInstance().getLoadWaterfallBannerMultiKetAdsIds()){
+                Admob.getInstance().loadBannerAdsMultiKeys(
+                        currentActivity,
+                        builder.getListIdAdMain(),
+                        frContainer,
+                        builder.getCallBack());
+            }else {
+                Admob.getInstance().loadBannerAds(currentActivity, builder.getListIdAdMain(), frContainer, builder.getCallBack(),  remoteKey);
+            }
         } else {
             frContainer.setVisibility(View.GONE);
         }
@@ -115,7 +110,7 @@ public class BannerManager implements LifecycleEventObserver {
     private void loadBannerFragment(FrameLayout frContainer) {
         Log.d(TAG, "loadBanner: " + builder.getListIdAdMain());
         if (Admob.getInstance().getShowAllAds()) {
-            Admob.getInstance().loadBannerAds(context, adWidth, builder.getListIdAdMain(), frContainer, builder.getCallBack(), this::startReloadBanner, remoteKey);
+            Admob.getInstance().loadBannerAds(context, adWidth, builder.getListIdAdMain(), frContainer, builder.getCallBack(),  remoteKey);
         } else {
             frContainer.setVisibility(View.GONE);
         }
@@ -134,27 +129,16 @@ public class BannerManager implements LifecycleEventObserver {
     }
 
     private void loadNewAdFormat() {
-        if (remoteKeySecondary.isEmpty()) {
-            if (!Admob.getInstance().checkCondition(currentActivity, remoteKey)) {
-                if (builder.getFrContainer() != null) {
-                    builder.getFrContainer().removeAllViews();
-                }
-                return;
+        if (!Admob.getInstance().checkCondition(currentActivity, remoteKey)) {
+            if (builder.getFrContainer() != null) {
+                builder.getFrContainer().removeAllViews();
             }
-        } else {
-            if (!Admob.getInstance().checkCondition(currentActivity, remoteKey) && !Admob.getInstance().checkCondition(currentActivity, remoteKeySecondary)) {
-                if (builder.getFrContainer() != null) {
-                    builder.getFrContainer().removeAllViews();
-                }
-                return;
-            }
+            return;
         }
         loadMainBanner();
-        loadSecondaryBanner();
     }
 
     private void loadMainBanner() {
-        isLoadedBannerMain = false;
         if (builder.bannerAdViewMain != null) {
             builder.bannerAdViewMain.destroy();
         }
@@ -162,11 +146,9 @@ public class BannerManager implements LifecycleEventObserver {
             @Override
             public void onAdLoaded() {
                 super.onAdLoaded();
-                isLoadedBannerMain = true;
                 builder.getCallBack().onAdLoaded();
                 Log.d(TAG, "onAdLoaded: Main");
                 if (builder.getFrContainer() != null) {
-                    builder.getFrContainer().removeView(builder.bannerAdViewSecondary);
                     builder.getFrContainer().addView(builder.bannerAdViewMain);
                     builder.getFrContainer().removeView(builder.shimmerBanner);
                 }
@@ -177,10 +159,7 @@ public class BannerManager implements LifecycleEventObserver {
                 super.onAdFailedToLoad();
                 builder.getCallBack().onAdFailedToLoad();
                 Log.d(TAG, "onAdFailedToLoad: Main");
-                if (isLoadedBannerSecondary) {
-                    builder.getFrContainer().removeView(builder.shimmerBanner);
-                }
-                loadBannerBackup();
+                builder.getFrContainer().removeView(builder.shimmerBanner);
             }
 
             @Override
@@ -188,7 +167,6 @@ public class BannerManager implements LifecycleEventObserver {
                 super.onAdImpression();
                 builder.getCallBack().onAdImpression();
                 Log.d(TAG, "onAdImpression: Main");
-                startReloadBanner();
             }
 
             @Override
@@ -200,116 +178,6 @@ public class BannerManager implements LifecycleEventObserver {
         }, remoteKey);
     }
 
-    private void loadSecondaryBanner() {
-        isLoadedBannerSecondary = false;
-        if (builder.bannerAdViewSecondary != null) {
-            builder.bannerAdViewSecondary.destroy();
-        }
-        builder.bannerAdViewSecondary = Admob.getInstance().loadBannerAdsWithoutShow(currentActivity, builder.getListIdAdSecondary(), new BannerCallback() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                isLoadedBannerSecondary = true;
-                builder.getCallBack().onAdLoaded();
-                Log.d(TAG, "onAdLoaded: Secondary");
-                if (builder.getFrContainer() != null) {
-                    builder.getFrContainer().removeView(builder.bannerAdViewMain);
-                    builder.getFrContainer().addView(builder.bannerAdViewSecondary);
-                    builder.getFrContainer().removeView(builder.shimmerBanner);
-                }
-            }
-
-            @Override
-            public void onAdFailedToLoad() {
-                super.onAdFailedToLoad();
-                builder.getCallBack().onAdFailedToLoad();
-                Log.d(TAG, "onAdFailedToLoad: Secondary");
-                if (isLoadedBannerMain) {
-                    builder.getFrContainer().removeView(builder.shimmerBanner);
-                }
-                loadBannerBackup();
-            }
-
-            @Override
-            public void onAdImpression() {
-                super.onAdImpression();
-                builder.getCallBack().onAdImpression();
-                Log.d(TAG, "onAdImpression: Secondary");
-                handleImpressionBannerSecondary();
-                startReloadBanner();
-            }
-
-            @Override
-            public void onAdClicked() {
-                super.onAdClicked();
-                builder.getCallBack().onAdClicked();
-                Log.d(TAG, "onAdClicked: Secondary");
-            }
-        }, remoteKeySecondary);
-    }
-
-    private void handleImpressionBannerSecondary() {
-        try {
-            if (isLoadedBannerMain) {
-                new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                    if (builder.getFrContainer() != null && builder.bannerAdViewSecondary != null) {
-                        builder.getFrContainer().removeView(builder.bannerAdViewSecondary);
-                        if (builder.bannerAdViewMain != null) {
-                            ViewParent parent = builder.bannerAdViewMain.getParent();
-                            if (parent instanceof ViewGroup) {
-                                ((ViewGroup) parent).removeView(builder.bannerAdViewMain);
-                            }
-                            builder.getFrContainer().addView(builder.bannerAdViewMain);
-                        }
-                    }
-                    if (builder.getFrContainer() != null && builder.shimmerBanner != null) {
-                        builder.getFrContainer().removeView(builder.shimmerBanner);
-                    }
-                }, 1000);
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "handleImpressionBannerSecondary: " + e.getMessage());
-        }
-    }
-
-    private void loadBannerBackup() {
-        if (builder.bannerAdViewBackup != null) {
-            builder.bannerAdViewBackup.destroy();
-        }
-        builder.bannerAdViewBackup = Admob.getInstance().loadBannerAdsBackupWithoutShow(currentActivity, builder.getListIdAdBackup(), new BannerCallback() {
-            @Override
-            public void onAdLoaded() {
-                super.onAdLoaded();
-                Log.d(TAG, "onAdLoaded: Backup");
-                if (builder.getFrContainer() != null) {
-                    builder.getFrContainer().removeView(builder.bannerAdViewMain);
-                    builder.getFrContainer().removeView(builder.bannerAdViewSecondary);
-                    builder.getFrContainer().removeView(builder.shimmerBanner);
-                    builder.getFrContainer().addView(builder.bannerAdViewBackup);
-                }
-            }
-
-            @Override
-            public void onAdFailedToLoad() {
-                super.onAdFailedToLoad();
-                Log.d(TAG, "onAdFailedToLoad: Backup");
-                startReloadBanner();
-            }
-
-            @Override
-            public void onAdImpression() {
-                super.onAdImpression();
-                Log.d(TAG, "onAdImpression: Backup");
-                startReloadBanner();
-            }
-
-            @Override
-            public void onAdClicked() {
-                super.onAdClicked();
-                Log.d(TAG, "onAdClicked: Backup");
-            }
-        }, remoteKeyBackup);
-    }
 
     private void loadOldAdFormat() {
         if (isLoadBannerFragment) {
@@ -323,56 +191,4 @@ public class BannerManager implements LifecycleEventObserver {
         this.isAlwaysReloadOnResume = isAlwaysReloadOnResume;
     }
 
-    private void startReloadBanner() {
-        if (countDownTimer != null && this.lifecycleOwner.getLifecycle().getCurrentState() == Lifecycle.State.RESUMED) {
-            Log.d(TAG, "startReloadBanner: ");
-            countDownTimer.cancel();
-            countDownTimer.start();
-        }
-    }
-
-    public String getRemoteKeyBackup() {
-        return remoteKeyBackup;
-    }
-
-    public void setRemoteKeyBackup(String remoteKeyBackup) {
-        this.remoteKeyBackup = remoteKeyBackup;
-    }
-
-    public String getRemoteKeySecondary() {
-        return remoteKeySecondary;
-    }
-
-    public void setRemoteKeySecondary(String remoteKeySecondary) {
-        this.remoteKeySecondary = remoteKeySecondary;
-    }
-
-    public void setIntervalReloadBanner(long intervalReloadBanner) {
-        if (intervalReloadBanner > 0) {
-            this.intervalReloadBanner = intervalReloadBanner;
-            countDownTimer = new CountDownTimer(this.intervalReloadBanner, 1000) {
-                @Override
-                public void onTick(long l) {
-
-                }
-
-                @Override
-                public void onFinish() {
-                    reloadAdNow();
-                }
-            };
-        }
-    }
-
-    public void cancelAutoReloadBanner() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-        }
-    }
-
-    public void resumeAutoReloadBanner() {
-        if (countDownTimer != null) {
-            countDownTimer.start();
-        }
-    }
 }

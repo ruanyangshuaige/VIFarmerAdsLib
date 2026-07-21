@@ -97,6 +97,8 @@ class AsyncSplash {
     private var isUseNativeSplash = false
     private var isLoadWaterfallNativeFullSplashMultiKeyAdsIds = false
     private var isLoadWaterfallInterSplashMultiKeyAdsIds = false
+    private var isLoadWaterfallBannerMultiKetAdsIds = false
+    private var listKeyBanner : MutableList<String> = mutableListOf()
 
     //1.end
     //2.use for log event
@@ -365,6 +367,23 @@ class AsyncSplash {
         this.isLoadWaterfallNativeFullSplashMultiKeyAdsIds = true
         this.isShowNativeAfterInter = true
         this.listKeyNativeAfterInterSplash = keys.toList().toTypedArray().toMutableList()
+    }
+
+    fun getLoadWaterfallBannerMultiKetAdsIds() : Boolean{
+        return this.isLoadWaterfallBannerMultiKetAdsIds
+    }
+
+    fun setLoadWaterfallBannerMultiKetAdsIds(value: Boolean){
+         this.isLoadWaterfallBannerMultiKetAdsIds = value
+    }
+
+    fun setListKeyBanner(vararg keys: String){
+        this.isLoadWaterfallBannerMultiKetAdsIds = true
+        this.listKeyBanner = keys.toList().toTypedArray().toMutableList()
+    }
+
+    fun getListKeyBanner() : MutableList<String>{
+        return this.listKeyBanner
     }
 
     fun getListKeyNativeAfterInter(): MutableList<String> {

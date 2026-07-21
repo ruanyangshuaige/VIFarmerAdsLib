@@ -2798,7 +2798,7 @@ public class Admob {
         return adView;
     }
 
-    public void loadBannerAds(Activity activity, List<String> listIdBanner, FrameLayout adContainerView, BannerCallback bannerCallback, IOnAdsImpression iOnAdsImpression, String remoteKey) {
+    public void loadBannerAds(Activity activity, List<String> listIdBanner, FrameLayout adContainerView, BannerCallback bannerCallback, String remoteKey) {
         ArrayList<String> listIdBannerTemp = new ArrayList<>(listIdBanner);
         if (adContainerView != null) {
             adContainerView.removeAllViews();
@@ -2855,7 +2855,7 @@ public class Admob {
                 if (!listIdBannerTemp.isEmpty()) {
                     listIdBannerTemp.remove(0);
                 }
-                loadBannerAds(activity, listIdBannerTemp, adContainerView, bannerCallback, iOnAdsImpression, remoteKey);
+                loadBannerAds(activity, listIdBannerTemp, adContainerView, bannerCallback, remoteKey);
             }
 
             @Override
@@ -2864,8 +2864,137 @@ public class Admob {
                 Log.d(TAG, "BANNER: onAdImpression. " + remoteKey);
                 EventTrackingHelper.logEvent(activity, remoteKey + "_view");
                 bannerCallback.onAdImpression();
-                //use for auto reload banner after x seconds
-                iOnAdsImpression.onAdsImpression();
+            }
+
+            @Override
+            public void onAdLoaded() {
+                super.onAdLoaded();
+                //Tracking revenue
+                adView.setOnPaidEventListener(adValue -> {
+                    //Adjust
+                    if (adView.getResponseInfo() != null) {
+                        AdjustUtil.trackRevenue(adView.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdBannerTemp.get(0), remoteKey);
+                    }
+                });
+                Log.i(TAG, "BANNER: onAdLoaded. " + remoteKey);
+                // Replace ad container with new ad view.
+                if (adContainerView != null) {
+                    adContainerView.removeAllViews();
+                    adContainerView.addView(adView);
+                }
+
+                //DetectTestAd
+                //Reset TechManager to false
+                if (AsyncSplash.Companion.getInstance().getUserTechManagerOrDetectTestAd().equals(DETECT_TEST_AD)) {
+                    TechManager.getInstance().detectedTech(activity, false);
+                }
+                if ((remoteKey.toLowerCase().trim().equals("banner_splash") || remoteKey.toLowerCase().trim().equals("banner_setting"))
+                        && !AsyncSplash.Companion.getInstance().getDebug()
+                        && AsyncSplash.Companion.getInstance().getUserTechManagerOrDetectTestAd().equals(DETECT_TEST_AD)
+                ) {
+                    boolean isTestAd = detectTestAd(adView);
+                    EventTrackingHelper.logEvent(activity, "device_test_" + isTestAd + "_" + adRequest.isTestDevice(activity));
+                    Log.d(TAG, "BANNER: onAdImpression. isTestAd: " + isTestAd);
+                    TechManager.getInstance().detectedTech(activity, isTestAd);
+
+                    if (AsyncSplash.Companion.getInstance().getUserTechManagerOrDetectTestAd().equals(DETECT_TEST_AD)
+                            && TechManager.getInstance().isTech(activity)
+                            && !AsyncSplash.Companion.getInstance().getDebug()) {
+                        AsyncSplash.Companion.getInstance().turnOffSomeRemoteKeys(activity);
+                    }
+                }
+
+                bannerCallback.onAdLoaded();
+            }
+
+            @Override
+            public void onAdOpened() {
+                super.onAdOpened();
+                Log.d(TAG, "BANNER: onAdOpened. " + remoteKey);
+                bannerCallback.onAdOpened();
+            }
+
+            @Override
+            public void onAdSwipeGestureClicked() {
+                super.onAdSwipeGestureClicked();
+                Log.d(TAG, "BANNER: onAdSwipeGestureClicked. " + remoteKey);
+                bannerCallback.onAdSwipeGestureClicked();
+            }
+        });
+        // [END load_ad]
+    }
+
+    public void loadBannerAdsMultiKeys(Activity activity, List<String> listIdBanner, FrameLayout adContainerView, BannerCallback bannerCallback) {
+        ArrayList<String> listIdBannerTemp = new ArrayList<>(listIdBanner);
+        if (adContainerView != null) {
+            adContainerView.removeAllViews();
+        }
+        String adUnitId = "";
+        if (!listIdBannerTemp.isEmpty()) {
+            adUnitId = listIdBannerTemp.get(0);
+        }
+        String remoteKey = AdmobApi.getInstance().getNameByIdAds(adUnitId);
+        //Check condition
+        if (!NetworkUtil.isNetworkActive(activity) || listIdBannerTemp.isEmpty() || !AdsConsentManager.getConsentResult(activity) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
+            Log.d(TAG, "BANNER: Check condition: RemoteKey:" + remoteKey + "_Network:" + NetworkUtil.isNetworkActive(activity) + "_IdEmpty:" + listIdBannerTemp.isEmpty() + "_UMP:" + AdsConsentManager.getConsentResult(activity) + "_ShowAllAds:" + isShowAllAds + "_IAP:" + IAPManager.getInstance().isPurchase() + "_RemoteConfig:" + RemoteConfigHelper.getInstance().get_config(activity, remoteKey));
+            bannerCallback.onAdFailedToLoad();
+            return;
+        }
+        //log event can request ads
+        EventTrackingHelper.logEvent(activity, remoteKey + "_true");
+        //end log event can request ads
+        //Show loading shimmer
+        View shimmerBanner = LayoutInflater.from(activity).inflate(R.layout.layout_shimmer_banner, null);
+        if (adContainerView != null) {
+            adContainerView.addView(shimmerBanner);
+        }
+        // [START create_ad_view]
+        // Create a new ad view.
+        AdView adView = new AdView(activity);
+        adView.setAdUnitId(listIdBannerTemp.get(0));
+        adView.setAdSize(getAdSize(activity));
+        // [END create_ad_view]
+
+        // [START load_ad]
+        // Start loading the ad in the background.
+        AdRequest.Builder adRequestBuilder = new AdRequest.Builder();
+        if (timeHttpBanner != -1) adRequestBuilder.setHttpTimeoutMillis(timeHttpBanner);
+        AdRequest adRequest = adRequestBuilder.build();
+        adView.loadAd(adRequest);
+        adView.setAdListener(new AdListener() {
+            @Override
+            public void onAdClicked() {
+                super.onAdClicked();
+                AppOpenManager.isLastActionClickAd = true;
+                Log.d(TAG, "BANNER: onAdClicked. " + remoteKey);
+                EventTrackingHelper.logEvent(activity, remoteKey + "_click");
+                bannerCallback.onAdClicked();
+            }
+
+            @Override
+            public void onAdClosed() {
+                super.onAdClosed();
+                Log.d(TAG, "BANNER: onAdClosed. " + remoteKey);
+                bannerCallback.onAdClosed();
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                super.onAdFailedToLoad(loadAdError);
+                Log.e(TAG, "BANNER: onAdFailedToLoad. " + loadAdError + ". " + remoteKey);
+                bannerCallback.onAdFailedToLoad();
+                if (!listIdBannerTemp.isEmpty()) {
+                    listIdBannerTemp.remove(0);
+                }
+                loadBannerAdsMultiKeys(activity, listIdBannerTemp, adContainerView, bannerCallback);
+            }
+
+            @Override
+            public void onAdImpression() {
+                super.onAdImpression();
+                Log.d(TAG, "BANNER: onAdImpression. " + remoteKey);
+                EventTrackingHelper.logEvent(activity, remoteKey + "_view");
+                bannerCallback.onAdImpression();
             }
 
             @Override
@@ -2941,7 +3070,7 @@ public class Admob {
     }
 
     //can load banner ads in fragment
-    public void loadBannerAds(Context context, int adWidth, List<String> listIdBanner, FrameLayout adContainerView, BannerCallback bannerCallback, IOnAdsImpression iOnAdsImpression, String remoteKey) {
+    public void loadBannerAds(Context context, int adWidth, List<String> listIdBanner, FrameLayout adContainerView, BannerCallback bannerCallback, String remoteKey) {
         ArrayList<String> listIdBannerTemp = new ArrayList<>(listIdBanner);
         if (adContainerView != null) {
             adContainerView.removeAllViews();
@@ -2999,7 +3128,7 @@ public class Admob {
                 if (!listIdBannerTemp.isEmpty()) {
                     listIdBannerTemp.remove(0);
                 }
-                loadBannerAds(context, adWidth, listIdBannerTemp, adContainerView, bannerCallback, iOnAdsImpression, remoteKey);
+                loadBannerAds(context, adWidth, listIdBannerTemp, adContainerView, bannerCallback, remoteKey);
             }
 
             @Override
@@ -3009,8 +3138,7 @@ public class Admob {
                 EventTrackingHelper.logEvent(context, remoteKey + "_view");
                 bannerCallback.onAdImpression();
                 //use for auto reload banner after x seconds
-                iOnAdsImpression.onAdsImpression();
-            }
+                }
 
             @Override
             public void onAdLoaded() {
@@ -3518,7 +3646,7 @@ public class Admob {
                 if (!listIdNativeTemp.isEmpty()) {
                     listIdNativeTemp.remove(0);
                 }
-                loadNativeAds(activity, listIdNativeTemp, nativeCallback, remoteKey);
+                loadNativeAdsWaterfallMultiKeyAds(activity, listIdNativeTemp, nativeCallback);
             }
 
             @Override

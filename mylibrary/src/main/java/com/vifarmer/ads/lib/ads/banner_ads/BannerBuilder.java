@@ -17,11 +17,7 @@ public class BannerBuilder {
     private FrameLayout frContainer;
     public boolean useNewAdLoading = false;
     public AdView bannerAdViewMain;
-    public AdView bannerAdViewSecondary;
-    public AdView bannerAdViewBackup;
     public List<String> listIdAdMain = new ArrayList<>();
-    public List<String> listIdAdSecondary = new ArrayList<>();
-    public List<String> listIdAdBackup = new ArrayList<>();
     public View shimmerBanner;
 
     public BannerBuilder(FrameLayout frContainer) {
@@ -55,21 +51,7 @@ public class BannerBuilder {
         this.listIdAdMain = listIdAdMain;
     }
 
-    public List<String> getListIdAdSecondary() {
-        return listIdAdSecondary;
-    }
 
-    public void setListIdAdSecondary(List<String> listIdAdSecondary) {
-        this.listIdAdSecondary = listIdAdSecondary;
-    }
-
-    public List<String> getListIdAdBackup() {
-        return listIdAdBackup;
-    }
-
-    public void setListIdAdBackup(List<String> listIdAdBackup) {
-        this.listIdAdBackup = listIdAdBackup;
-    }
 
     public FrameLayout getFrContainer() {
         return frContainer;
