@@ -2301,11 +2301,12 @@ public class Admob {
         boolean isShowNativeAfterInter;
 
         if (AsyncSplash.Companion.getInstance().getLoadWaterfallNativeFullSplashMultiKeyAdsIds()) {
-            //Chỉ cần 1 key trong list native full splash key bật thì đủ điều kiện chuyển sang NativeAfterInterActivity
+            // Chỉ cần 1 key trong list native full splash key bật thì đủ điều kiện chuyển sang NativeAfterInterActivity
             boolean oneKeyOn = false;
             for (String remoteKey : AsyncSplash.Companion.getInstance().getListKeyNativeAfterInter()) {
                 if (RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
                     oneKeyOn = true;
+                    break; // Thêm break tối ưu hiệu năng
                 }
             }
             isShowNativeAfterInter = oneKeyOn;
@@ -2314,7 +2315,8 @@ public class Admob {
         }
 
         ArrayList<String> listIdInterTemp = new ArrayList<>(listIdInter);
-        //Set timeout ads splash x(s) if cannot load
+
+        // Set timeout ads splash x(s) if cannot load
         runnable = () -> {
             EventTrackingHelper.logEvent(activity, EventTrackingHelper.inter_splash_id_timeout);
             if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
@@ -2342,21 +2344,41 @@ public class Admob {
         };
         handlerTimeoutSplash.postDelayed(runnable, timeOutCallSplashAds);
 
-        String adUnitId = "";
-        if (!listIdInter.isEmpty()) {
-            adUnitId = listIdInter.get(0);
-        }
-        String remoteKey = AdmobApi.getInstance().getNameByIdAds(adUnitId);
+        boolean isAnyConfigEnabled = false;
 
-        //Check condition
-        if (!NetworkUtil.isNetworkActive(activity) || listIdInterTemp.isEmpty() || !AdsConsentManager.getConsentResult(activity) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
-            Log.d(TAG, "Check condition loadAndShowInterAdSplash " + NetworkUtil.isNetworkActive(activity) + "_" + listIdInterTemp.isEmpty() + "_" + AdsConsentManager.getConsentResult(activity) + "_" + isShowAllAds + "_" + IAPManager.getInstance().isPurchase() + "_" + RemoteConfigHelper.getInstance().get_config(activity, remoteKey));
+        if (listIdInter != null && !listIdInter.isEmpty()) {
+            for (String id : listIdInter) {
+                String tempRemoteKey = AdmobApi.getInstance().getNameByIdAds(id);
+                if (RemoteConfigHelper.getInstance().get_config(activity, tempRemoteKey)) {
+                    isAnyConfigEnabled = true;
+                    break;
+                }
+            }
+        }
+
+        // Check condition
+        if (!NetworkUtil.isNetworkActive(activity) ||
+                listIdInterTemp.isEmpty() ||
+                !AdsConsentManager.getConsentResult(activity) ||
+                !isShowAllAds ||
+                IAPManager.getInstance().isPurchase() ||
+                !isAnyConfigEnabled // Nếu TẤT CẢ remoteKey đều false thì mới block
+        ) {
+            Log.d(TAG, "Check condition loadAndShowInterAdSplash " +
+                    NetworkUtil.isNetworkActive(activity) + "_" +
+                    listIdInterTemp.isEmpty() + "_" +
+                    AdsConsentManager.getConsentResult(activity) + "_" +
+                    isShowAllAds + "_" +
+                    IAPManager.getInstance().isPurchase() + "_" +
+                    isAnyConfigEnabled
+            );
+
             interCallback.onNextAction();
             removeHandlerSplashAds();
             return;
         }
 
-        //Log event
+        // Log event
         Bundle bundle = new Bundle();
         boolean idCheck = AdmobApi.getInstance().getListAdsSize() > 0;
         bundle.putString(EventTrackingHelper.splash_detail, AdsConsentManager.getConsentResult(activity) + "_" + TechManager.getInstance().isTech(activity) + "_" + NetworkUtil.isNetworkActive(activity) + "_" + getShowAllAds() + "_" + idCheck + "_" + RemoteConfigHelper.getInstance().get_config_string(activity, EventTrackingHelper.rate_aoa_inter_splash));
@@ -2368,25 +2390,30 @@ public class Admob {
         bundle.putString(EventTrackingHelper.interremote + "_" + EventTrackingHelper.openremote + "_" + EventTrackingHelper.aoavalue, RemoteConfigHelper.getInstance().get_config(activity, EventTrackingHelper.inter_splash) + "_" + RemoteConfigHelper.getInstance().get_config(activity, EventTrackingHelper.open_splash) + "_" + RemoteConfigHelper.getInstance().get_config_string(activity, EventTrackingHelper.rate_aoa_inter_splash));
         EventTrackingHelper.logEventWithMultipleParams(activity, EventTrackingHelper.inter_splash_tracking, bundle);
 
-        //log event can request
+        // log event can request
         EventTrackingHelper.logEvent(activity, EventTrackingHelper.inter_splash_true);
-        //end log event can request
-        //time start load splash ads
+        // time start load splash ads
         timeSplashLoadingAdShow = System.currentTimeMillis();
 
+        // Khởi tạo các biến để load ads cho vòng lặp hiện tại
+        String currentAdUnitId = listIdInterTemp.get(0);
+        String currentRemoteKey = AdmobApi.getInstance().getNameByIdAds(currentAdUnitId);
+
         AdRequest adRequest = new AdRequest.Builder().build();
-        InterstitialAd.load(activity, adUnitId, adRequest,
+
+        // Sử dụng currentAdUnitId vừa lấy ra
+        InterstitialAd.load(activity, currentAdUnitId, adRequest,
                 new InterstitialAdLoadCallback() {
                     @Override
                     public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                        //Tracking revenue
+                        // Tracking revenue
                         interstitialAd.setOnPaidEventListener(adValue -> {
-                            //Adjust
-                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, listIdInterTemp.get(0), "inter_splash");
+                            // Adjust
+                            AdjustUtil.trackRevenue(interstitialAd.getResponseInfo().getLoadedAdapterResponseInfo(), adValue, currentAdUnitId, "inter_splash");
                         });
-                        // The mInterstitialAd reference will be null until
-                        // an ad is loaded.
-                        Log.i(TAG, "SPLASH: Ad was loaded inter splash. " + remoteKey);
+
+                        Log.i(TAG, "SPLASH: Ad was loaded inter splash. " + currentRemoteKey);
+
                         interCallback.onAdLoaded(interstitialAd);
                         mInterstitialAdSplash = interstitialAd;
                         showInterAdsSplash(activity, interCallback, adsKeyNative, remoteKeyNative);
@@ -2396,12 +2423,15 @@ public class Admob {
                     @Override
                     public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
                         // Handle the error
-                        Log.e(TAG, "SPLASH: Fail to load inter splash. " + loadAdError + ". " + remoteKey);
+                        Log.e(TAG, "SPLASH: Fail to load inter splash. " + loadAdError + ". " + currentRemoteKey);
+
                         interCallback.onAdFailedToLoad();
+
                         if (!listIdInterTemp.isEmpty()) {
-                            listIdInterTemp.remove(0);
+                            listIdInterTemp.remove(0); // Bỏ qua ID vừa fail
                         }
-                        loadAndShowInterAdSplash(activity, listIdInterTemp, interCallback, adsKeyNative, remoteKeyNative);
+
+                        loadInterAdSplashFloorMultiKeyAds(activity, listIdInterTemp, interCallback, adsKeyNative, remoteKeyNative);
                     }
                 });
     }
@@ -3138,7 +3168,7 @@ public class Admob {
                 EventTrackingHelper.logEvent(context, remoteKey + "_view");
                 bannerCallback.onAdImpression();
                 //use for auto reload banner after x seconds
-                }
+            }
 
             @Override
             public void onAdLoaded() {

@@ -53,13 +53,13 @@ public class BannerManager implements LifecycleEventObserver {
         this.lifecycleOwner.getLifecycle().addObserver(this);
     }
 
-    public BannerManager(Context context, int adWidth, LifecycleOwner lifecycleOwner, BannerBuilder builder, Boolean isLoadWaterFallMultiKeyAds){
-        this.remoteKey = "";
-        this.isLoadBannerFragment = true;
-        this.isLoadWaterFallMultiKeyAds = isLoadWaterFallMultiKeyAds;
+
+    public BannerManager(@NonNull Activity currentActivity, LifecycleOwner lifecycleOwner, BannerBuilder builder, Boolean isLoadWaterFallMultiKeyAds) {
+        this.isLoadBannerFragment = false;
         this.builder = builder;
-        this.context = context;
-        this.adWidth = adWidth;
+        this.currentActivity = currentActivity;
+        this.remoteKey = "";
+        this.isLoadWaterFallMultiKeyAds = isLoadWaterFallMultiKeyAds;
         this.lifecycleOwner = lifecycleOwner;
         this.lifecycleOwner.getLifecycle().addObserver(this);
     }
