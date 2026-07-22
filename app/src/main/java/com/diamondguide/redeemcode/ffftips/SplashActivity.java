@@ -15,6 +15,8 @@ import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 /*import com.amazic.library.iap.IAPManager;
 import com.amazic.library.iap.ProductDetailCustom;*/
+import com.vifarmer.ads.lib.iap.IAPManager;
+import com.vifarmer.ads.lib.iap.ProductDetailCustom;
 import com.vifarmer.ads.lib.update_app.UpdateApplicationManager;
 import com.diamondguide.redeemcode.ffftips.databinding.ActivitySplashBinding;
 import com.google.android.play.core.appupdate.AppUpdateManager;
@@ -142,9 +144,12 @@ public class SplashActivity extends AppCompatActivity {
             //AsyncSplash.Companion.getInstance().setTimeOutCallApi(5000);
             //AsyncSplash.Companion.getInstance().setUseIdAdsFromRemoteConfig("id_ads");
             //AsyncSplash.Companion.getInstance().setTimeOutCallIdRemoteConfig(5000);
-//            ArrayList<ProductDetailCustom> listIAP = new ArrayList<>();
-//            listIAP.add(new ProductDetailCustom(IAPManager.PRODUCT_ID_TEST, IAPManager.typeSub));
-//            AsyncSplash.Companion.getInstance().setUseBilling(listIAP); //if app use IAP
+            IAPManager.getInstance().setPurchaseTest(true);
+            ArrayList<ProductDetailCustom> listIAP = new ArrayList<>();
+            listIAP.add(new ProductDetailCustom(IAPManager.PRODUCT_ID_TEST, IAPManager.typeSub, false));
+            listIAP.add(new ProductDetailCustom("coin_pack_100", IAPManager.typeIAP,true));
+            listIAP.add(new ProductDetailCustom("coin_pack_500", IAPManager.typeIAP,true));
+            AsyncSplash.Companion.getInstance().setUseBilling(listIAP); //if app use IAP
             AsyncSplash.Companion.getInstance().setInitResumeAdsNormal(); //init resume ads without welcome back
 //            AsyncSplash.Companion.getInstance().setInitWelcomeBackBelowResumeAds(WelcomeBackActivity.class); //init resume ads with welcome back above
 //            AsyncSplash.Companion.getInstance().setInitWelcomeBackBelowResumeAds(WelcomeBackActivity.class); //init resume ads with welcome back below
@@ -212,4 +217,5 @@ public class SplashActivity extends AppCompatActivity {
         super.onDestroy();
         appUpdateManager.unregisterListener(installStateUpdatedListener);
     }
+
 }

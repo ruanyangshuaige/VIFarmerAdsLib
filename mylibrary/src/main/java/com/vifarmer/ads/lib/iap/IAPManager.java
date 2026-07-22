@@ -35,6 +35,7 @@ public class IAPManager {
     public static String typeIAP = BillingClient.ProductType.INAPP, typeSub = BillingClient.ProductType.SUBS;
     private final ArrayList<QueryProductDetailsParams.Product> listIAPProduct = new ArrayList<>();
     private final ArrayList<QueryProductDetailsParams.Product> listSubProduct = new ArrayList<>();
+    private final Map<String, ProductDetailCustom> productDetailCustomMap = new HashMap<>();
     private List<ProductDetails> productDetailsListIAP = new ArrayList<>();
     private List<ProductDetails> productDetailsListSub = new ArrayList<>();
     final private Map<String, ProductDetails> productDetailsINAPMap = new HashMap<>();
@@ -101,6 +102,7 @@ public class IAPManager {
             listSubProduct.add(QueryProductDetailsParams.Product.newBuilder().setProductId(PRODUCT_ID_TEST).setProductType(typeSub).build());
         }
         for (ProductDetailCustom productDetailCustom : listProductDetailCustoms) {
+            productDetailCustomMap.put(productDetailCustom.getProductId(), productDetailCustom);
             if (productDetailCustom.getProductType().equals(typeIAP)) {
                 listIAPProduct.add(QueryProductDetailsParams.Product.newBuilder().setProductId(productDetailCustom.getProductId()).setProductType(productDetailCustom.getProductType()).build());
             } else if (productDetailCustom.getProductType().equals(typeSub)) {
@@ -170,7 +172,7 @@ public class IAPManager {
     public String purchase(Activity activity, String productId) {//use for by lifetime
         ProductDetails productDetails = productDetailsINAPMap.get(productId);
         if (isPurchaseTest) {
-            PurchaseTestBottomSheet purchaseTestBottomSheet = new PurchaseTestBottomSheet(typeIAP, productDetails, activity, purchaseCallback);
+            PurchaseTestBottomSheet purchaseTestBottomSheet = new PurchaseTestBottomSheet(typeIAP, productId, productDetails, activity, purchaseCallback);
             purchaseTestBottomSheet.show();
             return "Purchase Test BottomSheet";
         }
@@ -213,7 +215,7 @@ public class IAPManager {
 
     public String subscribe(Activity activity, String productId) { //use for buy sub
         if (isPurchaseTest) {
-            purchase(activity, PRODUCT_ID_TEST);
+            return purchase(activity, productId);
         }
         ProductDetails productDetails = productDetailsSubsMap.get(productId);
         if (productDetails == null) {
@@ -285,7 +287,7 @@ public class IAPManager {
                 Log.d(TAG, "Consume thành công! User có thể mua lại sản phẩm này.");
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    isPurchase = true; //??????????????????????
+                    // isPurchase = true; // Không set true cho vật phẩm tiêu hao để tránh ảnh hưởng logic quảng cáo
                     purchaseCallback.onProductPurchased(purchase.getOrderId(), purchase.getOriginalJson());
                 });
             }
@@ -316,12 +318,10 @@ public class IAPManager {
         }
     }
 
-    private boolean isConsumable(String productId) {
-        //Check IAP product
-        for (QueryProductDetailsParams.Product p : listIAPProduct) {
-            if (p.zza().equals(productId)) {
-                return true;
-            }
+    public boolean isConsumable(String productId) {
+        ProductDetailCustom custom = productDetailCustomMap.get(productId);
+        if (custom != null) {
+            return custom.isConsumable();
         }
         return false;
     }
@@ -331,9 +331,10 @@ public class IAPManager {
             billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(typeIAP).build(), (billingResult, list) -> {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     for (Purchase purchase : list) {
-                        for (QueryProductDetailsParams.Product id : listIAPProduct) {
-                            if (purchase.getProducts().contains(id.zza())) {
+                        for (String productId : purchase.getProducts()) {
+                            if (!isConsumable(productId)) {
                                 isPurchase = true;
+                                break;
                             }
                         }
                     }
@@ -352,11 +353,8 @@ public class IAPManager {
             billingClient.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build(), (billingResult, list) -> {
                 if (billingResult.getResponseCode() == BillingClient.BillingResponseCode.OK) {
                     for (Purchase purchase : list) {
-                        for (QueryProductDetailsParams.Product id : listSubProduct) {
-                            if (purchase.getProducts().contains(id.zza())) {
-                                isPurchase = true;
-                            }
-                        }
+                        // Subscriptions are generally considered "Remove Ads" purchases
+                        isPurchase = true;
                     }
                 }
                 isVerifySub = true;

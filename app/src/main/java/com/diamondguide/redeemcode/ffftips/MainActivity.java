@@ -157,7 +157,7 @@ public class MainActivity extends AppCompatActivity {
                     this,
                     "inter_all",
                     "inter_all",
-                    new InterCallback(){
+                    new InterCallback() {
                         @Override
                         public void onNextAction() {
                             super.onNextAction();
@@ -231,6 +231,11 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         });
+        binding.btnTestIAP.setOnClickListener(view -> {
+            Intent intent = new Intent(this, IAPActivity.class);
+            startActivity(intent);
+        });
+
     }
 
     @Override
