@@ -97,9 +97,6 @@ class AsyncSplash {
     private var isUseNativeSplash = false
     private var isLoadWaterfallNativeFullSplashMultiKeyAdsIds = false
     private var isLoadWaterfallInterSplashMultiKeyAdsIds = false
-    private var isLoadWaterfallBannerMultiKetAdsIds = false
-    private var listKeyBanner : MutableList<String> = mutableListOf()
-
     //1.end
     //2.use for log event
     private var timeStartSplash = System.currentTimeMillis()
@@ -369,22 +366,6 @@ class AsyncSplash {
         this.listKeyNativeAfterInterSplash = keys.toList().toTypedArray().toMutableList()
     }
 
-    fun getLoadWaterfallBannerMultiKetAdsIds() : Boolean{
-        return this.isLoadWaterfallBannerMultiKetAdsIds
-    }
-
-    fun setLoadWaterfallBannerMultiKetAdsIds(value: Boolean){
-         this.isLoadWaterfallBannerMultiKetAdsIds = value
-    }
-
-    fun setListKeyBanner(vararg keys: String){
-        this.isLoadWaterfallBannerMultiKetAdsIds = true
-        this.listKeyBanner = keys.toList().toTypedArray().toMutableList()
-    }
-
-    fun getListKeyBanner() : MutableList<String>{
-        return this.listKeyBanner
-    }
 
     fun getListKeyNativeAfterInter(): MutableList<String> {
         return this.listKeyNativeAfterInterSplash
@@ -716,8 +697,13 @@ class AsyncSplash {
                             }
                             val isShowOpenSplash: Boolean = RemoteConfigHelper.getInstance()
                                 .get_config(activity, keyAdsOpenSplash)
-                            val isShowInterSplash: Boolean = RemoteConfigHelper.getInstance()
-                                .get_config(activity, keyAdsInterSplash)
+                            val isShowInterSplash: Boolean = if (isLoadWaterfallInterSplashMultiKeyAdsIds) {
+                                listKeyInterSplash.any {
+                                    RemoteConfigHelper.getInstance().get_config(activity, it)
+                                }
+                            } else {
+                                RemoteConfigHelper.getInstance().get_config(activity, keyAdsInterSplash)
+                            }
                             adsSplash = AdsSplash.init(
                                 isShowOpenSplash,
                                 isShowInterSplash,

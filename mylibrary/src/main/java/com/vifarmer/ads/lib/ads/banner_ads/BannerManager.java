@@ -25,9 +25,6 @@ public class BannerManager implements LifecycleEventObserver {
     private final BannerBuilder builder;
     private Activity currentActivity;
     private final LifecycleOwner lifecycleOwner;
-    private boolean isReloadAds = false;
-    private boolean isAlwaysReloadOnResume = false;
-    private long intervalReloadBanner = 0;
     private Context context;
     private int adWidth;
     private boolean isLoadBannerFragment = false;
@@ -93,12 +90,13 @@ public class BannerManager implements LifecycleEventObserver {
     private void loadBanner(FrameLayout frContainer) {
         Log.d(TAG, "loadBanner: " + builder.getListIdAdMain());
         if (Admob.getInstance().getShowAllAds()) {
-            if(AsyncSplash.Companion.getInstance().getLoadWaterfallBannerMultiKetAdsIds()){
+            if(isLoadWaterFallMultiKeyAds){
                 Admob.getInstance().loadBannerAdsMultiKeys(
                         currentActivity,
                         builder.getListIdAdMain(),
                         frContainer,
-                        builder.getCallBack());
+                        builder.getCallBack()
+                );
             }else {
                 Admob.getInstance().loadBannerAds(currentActivity, builder.getListIdAdMain(), frContainer, builder.getCallBack(),  remoteKey);
             }
@@ -116,9 +114,6 @@ public class BannerManager implements LifecycleEventObserver {
         }
     }
 
-    public void setReloadAds() {
-        isReloadAds = true;
-    }
 
     public void reloadAdNow() {
         if (builder.useNewAdLoading) {
@@ -187,8 +182,5 @@ public class BannerManager implements LifecycleEventObserver {
         }
     }
 
-    public void setAlwaysReloadOnResume(boolean isAlwaysReloadOnResume) {
-        this.isAlwaysReloadOnResume = isAlwaysReloadOnResume;
-    }
 
 }
