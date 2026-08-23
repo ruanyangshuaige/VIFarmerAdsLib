@@ -23,9 +23,17 @@ public class InterManager {
         Admob.getInstance().loadInterAdsLoadAndShow(activity, AdmobApi.getInstance().getListIDByName(adsKey), interCallback, remoteKey);
     }
 
-    public static void loadAndShowInterAdsWithNativeAfterInter(Activity activity, String adsKeyInter, String remoteKeyInter, InterCallback interCallback, String adsKeyNative, String remoteKeyNative) {
-        NativeAfterInterManager.preloadNativeAfterInter(activity, adsKeyNative, remoteKeyNative);
-        Admob.getInstance().loadInterAdsLoadAndShowWithNativeAfterInter(activity, AdmobApi.getInstance().getListIDByName(adsKeyInter), interCallback, remoteKeyInter, remoteKeyNative, adsKeyNative);
+    public static void loadAndShowInterAdsWithNativeAfterInter(Activity activity, String adsKeyInter, String remoteKeyInter, InterCallback interCallback, String remoteKeyNative, String adsKeyNative) {
+        NativeAfterInterManager.preloadNativeAfterInter(activity, adsKeyNative, remoteKeyNative, null, null);
+        Admob.getInstance().loadInterAdsLoadAndShowWithNativeAfterInter(activity, AdmobApi.getInstance().getListIDByName(adsKeyInter), interCallback, remoteKeyInter, new String[]{remoteKeyNative}, new String[]{adsKeyNative});
+    }
+
+    public static void loadAndShowInterAdsWithNativeAfterInter(Activity activity, String adsKeyInter, String remoteKeyInter, InterCallback interCallback, String[] remoteKeysNative, String[] adsKeysNative) {
+        if (adsKeysNative != null && adsKeysNative.length > 0) {
+            String defaultRemoteKey = (remoteKeysNative != null && remoteKeysNative.length > 0) ? remoteKeysNative[0] : adsKeysNative[0];
+            NativeAfterInterManager.preloadNativeAfterInter(activity, adsKeysNative[0], defaultRemoteKey, adsKeysNative, remoteKeysNative);
+        }
+        Admob.getInstance().loadInterAdsLoadAndShowWithNativeAfterInter(activity, AdmobApi.getInstance().getListIDByName(adsKeyInter), interCallback, remoteKeyInter, remoteKeysNative, adsKeysNative);
     }
 
     public static void loadInterAds(Context context, String adsKey, String remoteKey) {

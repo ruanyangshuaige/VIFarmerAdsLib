@@ -79,11 +79,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="TEST IAP"
-        app:layout_constraintBottom_toBottomOf="@+id/tv_show_open_resume"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/tv_show_open_resume"
-        app:layout_constraintTop_toBottomOf="@+id/tv_show_reward_inter" />
-
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_show_open_resume" />
     <FrameLayout
         android:id="@+id/ad_view_container"
         android:layout_width="match_parent"

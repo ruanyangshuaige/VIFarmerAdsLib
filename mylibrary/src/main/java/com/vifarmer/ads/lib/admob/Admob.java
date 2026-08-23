@@ -488,9 +488,18 @@ public class Admob {
         }
     }
 
-    public void loadInterAdsLoadAndShowWithNativeAfterInter(Activity activity, List<String> listIdInter, InterCallback interCallback, String remoteKeyInter, String remoteKeyNative, String adsKeyNative) {
-        boolean isShowNativeAfterInter = RemoteConfigHelper.getInstance().get_config(activity, remoteKeyNative);
+    public void loadInterAdsLoadAndShowWithNativeAfterInter(Activity activity, List<String> listIdInter, InterCallback interCallback, String remoteKeyInter, String[] remoteKeysNative, String[] adsKeysNative) {
+        boolean isShowNativeAfterInter = false;
+        if (remoteKeysNative != null) {
+            for (String remoteKey : remoteKeysNative) {
+                if (RemoteConfigHelper.getInstance().get_config(activity, remoteKey)) {
+                    isShowNativeAfterInter = true;
+                    break;
+                }
+            }
+        }
 
+        final boolean finalIsShowNativeAfterInter = isShowNativeAfterInter;
         ArrayList<String> listIdInterTemp = new ArrayList<>(listIdInter);
         //Set timeout inter ads x(s) if cannot load
         isLoadInterAdsIdTimeout = false;
@@ -503,9 +512,8 @@ public class Admob {
             if (interCallback != null) {
                 isLoadInterAdsIdTimeout = true;
                 if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
-                    if (isShowNativeAfterInter) {
-                        NativeAd nativeAd = NativeAfterInterManager.mapNativeAdsAfterInter.get(adsKeyNative);
-                        if (nativeAd == null) {
+                    if (finalIsShowNativeAfterInter) {
+                        if (!isAnyNativeAdLoaded(adsKeysNative)) {
                             interCallback.onNextAction();
                         } else {
                             canCountTimeStartToShowXButtonNativeAfterInter = true;
@@ -566,7 +574,7 @@ public class Admob {
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
                         }
-                        showInterAdsLoadAndShowWithNativeAfterInter(activity, interstitialAd, interCallback, adsKeyNative, remoteKeyInter, isShowNativeAfterInter);
+                        showInterAdsLoadAndShowWithNativeAfterInter(activity, interstitialAd, interCallback, adsKeysNative, remoteKeyInter, finalIsShowNativeAfterInter);
                         removeHandlerInterAds();
                     }
 
@@ -581,12 +589,12 @@ public class Admob {
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
                         }
-                        loadInterAdsLoadAndShow(activity, listIdInterTemp, interCallback, remoteKeyInter);
+                        loadInterAdsLoadAndShowWithNativeAfterInter(activity, listIdInterTemp, interCallback, remoteKeyInter, remoteKeysNative, adsKeysNative);
                     }
                 });
     }
 
-    public void showInterAdsLoadAndShowWithNativeAfterInter(Activity activity, InterstitialAd mInterstitialAd, InterCallback interCallback, String adsKeyNative, String remoteKeyInter, boolean isShowNativeAfterInter) {
+    public void showInterAdsLoadAndShowWithNativeAfterInter(Activity activity, InterstitialAd mInterstitialAd, InterCallback interCallback, String[] adsKeysNative, String remoteKeyInter, boolean isShowNativeAfterInter) {
         //Check condition
         if (!NetworkUtil.isNetworkActive(activity) || !AdsConsentManager.getConsentResult(activity) || !isShowAllAds || IAPManager.getInstance().isPurchase() || !RemoteConfigHelper.getInstance().get_config(activity, remoteKeyInter)) {
             Log.d(TAG, "INTER: Check condition. RemoteKey:" + remoteKeyInter + ". Network:" + NetworkUtil.isNetworkActive(activity) + "_UMP:" + AdsConsentManager.getConsentResult(activity) + "_ShowAllAds:" + isShowAllAds + "_IAP:" + IAPManager.getInstance().isPurchase() + "_RemoteConfig:" + RemoteConfigHelper.getInstance().get_config(activity, remoteKeyInter));
@@ -597,8 +605,7 @@ public class Admob {
             Log.d(TAG, "INTER: The interstitial ad wasn't ready yet. " + remoteKeyInter);
             if (AsyncSplash.Companion.getInstance().getShowNativeAfterInter()) {
                 if (isShowNativeAfterInter) {
-                    NativeAd nativeAd = NativeAfterInterManager.mapNativeAdsAfterInter.get(adsKeyNative);
-                    if (nativeAd == null) {
+                    if (!isAnyNativeAdLoaded(adsKeysNative)) {
                         interCallback.onNextAction();
                     } else {
                         canCountTimeStartToShowXButtonNativeAfterInter = true;
@@ -698,6 +705,14 @@ public class Admob {
             mInterstitialAd.setImmersiveMode(true);
             mInterstitialAd.show(activity);
         }
+    }
+
+    private boolean isAnyNativeAdLoaded(String[] adsKeysNative) {
+        if (adsKeysNative == null || adsKeysNative.length == 0) return false;
+        for (String key : adsKeysNative) {
+            if (NativeAfterInterManager.mapNativeAdsAfterInter.get(key) != null) return true;
+        }
+        return false;
     }
 
     private void startNativeAfterInter(Activity activity, InterCallback interCallback) {

@@ -122,11 +122,10 @@ public class MainActivity extends AppCompatActivity {
                             super.onNextAction();
                             Intent intent = new Intent(MainActivity.this, MainActivity2.class);
                             startActivity(intent);
-//                            finish();
                         }
                     },
-                    "native_after_inter",
-                    "native_after_inter"
+                    new String[]{"native_full_2f", "native_full"},
+                    new String[]{"native_full_2f", "native_full"}
             );
         });
 
