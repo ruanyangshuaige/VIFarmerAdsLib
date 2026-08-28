@@ -124,8 +124,10 @@ public class MainActivity extends AppCompatActivity {
                             startActivity(intent);
                         }
                     },
-                    new String[]{"native_full_2f", "native_full"},
-                    new String[]{"native_full_2f", "native_full"}
+                    "native_full_2f",
+                    "native_full_2f"
+                  /*  new String[]{"native_full_2f", "native_full"},
+                    new String[]{"native_full_2f", "native_full"}*/
             );
         });
 

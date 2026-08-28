@@ -14,6 +14,7 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.nativead.NativeAd;
 import com.google.android.gms.ads.nativead.NativeAdView;
 import com.vifarmer.ads.lib.R;
+import com.vifarmer.ads.lib.Utils.EventTrackingHelper;
 import com.vifarmer.ads.lib.admob.Admob;
 import com.vifarmer.ads.lib.admob.AdmobApi;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
@@ -50,6 +51,7 @@ public class NativeAfterInterManager {
             Log.d(TAG, "NativeAfterInterManager: preloadNativeAfterInter - adskey = " + mapNativeAdsAfterInter.get(adsKey));
             if (mapNativeAdsAfterInter.get(adsKey) == null) {
                 Log.d(TAG, "NativeAfterInterManager: 1.preloadNativeAfterInter." + AdmobApi.getInstance().getListIDByName(adsKey));
+                EventTrackingHelper.logEvent(activity, remoteKey + "_preload_request");
                 Admob.getInstance().loadNativeAds(
                         activity,
                         AdmobApi.getInstance().getListIDByName(adsKey),
@@ -59,6 +61,7 @@ public class NativeAfterInterManager {
                                 super.onNativeAdLoaded(nativeAd);
                                 mapNativeAdsAfterInter.put(adsKey, nativeAd);
                                 Log.d(TAG, "NativeAfterInterManager: onNativeAdLoaded: " + mapNativeAdsAfterInter);
+                                EventTrackingHelper.logEvent(activity, remoteKey + "_preload_success");
                             }
 
                             @Override
@@ -66,6 +69,7 @@ public class NativeAfterInterManager {
                                 super.onAdFailedToLoad(loadAdError);
                                 mapNativeAdsAfterInter.put(adsKey, null);
                                 Log.d(TAG, "NativeAfterInterManager: 1.onAdFailedToLoad: " + loadAdError.getMessage());
+                                EventTrackingHelper.logEvent(activity, remoteKey + "_preload_failed_" + loadAdError.getMessage());
                             }
                         }, remoteKey
                 );
@@ -114,6 +118,7 @@ public class NativeAfterInterManager {
         }
 
         Log.d(TAG, "NativeAfterInterManager: Loading native for key: " + targetKey + " with remoteKey: " + targetRemoteKey);
+        EventTrackingHelper.logEvent(activity, targetRemoteKey + "_preload_request");
         Admob.getInstance().loadNativeAds(
                 activity,
                 ids,
@@ -123,12 +128,14 @@ public class NativeAfterInterManager {
                         super.onNativeAdLoaded(nativeAd);
                         mapNativeAdsAfterInter.put(targetKey, nativeAd);
                         Log.d(TAG, "NativeAfterInterManager: onNativeAdLoaded for key: " + targetKey);
+                        EventTrackingHelper.logEvent(activity, targetRemoteKey + "_preload_success");
                     }
 
                     @Override
                     public void onAdFailedToLoad(LoadAdError loadAdError) {
                         super.onAdFailedToLoad(loadAdError);
                         Log.d(TAG, "NativeAfterInterManager: Failed to load " + targetKey + ", trying next key...");
+                        EventTrackingHelper.logEvent(activity, targetRemoteKey + "_preload_failed_" + loadAdError.getMessage());
                         loadNativeWaterfall(activity, adsKey, listKeys, listRemoteKeys, index + 1);
                     }
                 }, targetRemoteKey
@@ -159,6 +166,7 @@ public class NativeAfterInterManager {
 
         if (nativeAd != null) {
             Log.d(TAG, "NativeAfterInterManager: NativeAd Show");
+            EventTrackingHelper.logEvent(activity, remoteKey + "_show");
             LayoutInflater layoutInflater = LayoutInflater.from(fr.getContext());
 
             NativeAdView adView = (NativeAdView) layoutInflater.inflate(idLayoutNative, fr, false);
@@ -166,11 +174,13 @@ public class NativeAfterInterManager {
             AppCompatButton btnClose = adView.findViewById(R.id.btn_close);
             ImageView imgClose = adView.findViewById(R.id.img_close);
             btnClose.setOnClickListener(view -> {
+                EventTrackingHelper.logEvent(activity, remoteKey + "_close_click");
                 if (listener != null) {
                     listener.onClose();
                 }
             });
             imgClose.setOnClickListener(view -> {
+                EventTrackingHelper.logEvent(activity, remoteKey + "_close_click");
                 if (listener != null) {
                     listener.onClose();
                 }
@@ -186,6 +196,7 @@ public class NativeAfterInterManager {
             mapNativeAdsAfterInter.put(loadedKey, null);
         } else {
             Log.d(TAG, "NativeAfterInterManager: NativeAd NULL onNext");
+            EventTrackingHelper.logEvent(activity, remoteKey + "_show_fail_null");
             if (listener != null) {
                 listener.onFail();
             }

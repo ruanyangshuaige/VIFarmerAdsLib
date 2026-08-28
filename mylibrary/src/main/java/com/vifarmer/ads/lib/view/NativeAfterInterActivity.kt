@@ -18,17 +18,14 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import com.vifarmer.ads.lib.R
+import com.vifarmer.ads.lib.Utils.EventTrackingHelper
 import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager
 import com.vifarmer.ads.lib.callback.InterCallback
 
 class NativeAfterInterActivity : AppCompatActivity() {
     private lateinit var frAds: FrameLayout
     private var isPause = false
-
-    override fun onPause() {
-        super.onPause()
-        isPause = true
-    }
+    private var NATIVE_AFTER_INTER_ACTIVITY = "NATIVE_AFTER_INTER_ACTIVITY"
 
     companion object {
         var interCallback: InterCallback? = null
@@ -50,6 +47,7 @@ class NativeAfterInterActivity : AppCompatActivity() {
 
         frAds = findViewById(R.id.fr_ads)
         Log.d("Admob", "Native After Inter: Show Screen Native After Inter")
+        EventTrackingHelper.logEvent(this, NATIVE_AFTER_INTER_ACTIVITY + "_OPEN")
 
         val onBackPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {

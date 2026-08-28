@@ -178,7 +178,7 @@ public class SplashActivity extends AppCompatActivity {
                     //RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "inter_splash", false);
                     //RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "open_splash", false);
                     RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "native_full", false);
-                    RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "native_full_2f", false);
+                    RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "native_full_2f", true);
                     RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "native_full_splash_2f", true);
                     RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "native_full_splash", true);
                     RemoteConfigHelper.getInstance().set_config(SplashActivity.this, "inter_splash_2f", true);
