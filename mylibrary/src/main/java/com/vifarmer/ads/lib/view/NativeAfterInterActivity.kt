@@ -36,6 +36,11 @@ class NativeAfterInterActivity : AppCompatActivity() {
         var listRemoteKeys: Array<String>? = null
     }
 
+    override fun onPause() {
+        super.onPause()
+        isPause = true
+    }
+
     @SuppressLint("MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
 
