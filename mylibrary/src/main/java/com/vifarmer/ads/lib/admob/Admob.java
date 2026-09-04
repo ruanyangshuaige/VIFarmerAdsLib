@@ -70,6 +70,7 @@ import com.vifarmer.ads.lib.admob.admob_interface.IOnAdsImpression;
 import com.vifarmer.ads.lib.admob.admob_interface.IOnInitAdmobDone;
 import com.vifarmer.ads.lib.ads.app_open_ads.AppOpenManager;
 import com.vifarmer.ads.lib.ads.collapse_banner_ads.CollapseBannerHelper;
+import com.vifarmer.ads.lib.ads.inter_ads.InterHelper;
 import com.vifarmer.ads.lib.ads.native_ads.NativeAfterInterManager;
 import com.vifarmer.ads.lib.ads.splash_ads.AsyncSplash;
 import com.vifarmer.ads.lib.callback.BannerCallback;
@@ -474,6 +475,7 @@ public class Admob {
                 public void onAdShowedFullScreenContent() {
                     // Called when ad is shown.
                     Log.d(TAG, "INTER: Ad showed fullscreen content. " + remoteKey);
+                    attachLottieToInterCloseButton(activity, false);
                     interCallback.onAdShowedFullScreenContent();
                     isInterOrRewardedShowing = true;
                     removeHandlerInterAds();
@@ -689,6 +691,7 @@ public class Admob {
                 public void onAdShowedFullScreenContent() {
                     // Called when ad is shown.
                     Log.d(TAG, "INTER: Ad showed fullscreen content. " + remoteKeyInter);
+                    attachLottieToInterCloseButton(activity, false);
                     interCallback.onAdShowedFullScreenContent();
                     isInterOrRewardedShowing = true;
                     removeHandlerInterAds();
@@ -905,6 +908,7 @@ public class Admob {
                 public void onAdShowedFullScreenContent() {
                     super.onAdShowedFullScreenContent();
                     Log.d(TAG, "INTER Ad Preload: Ad showed fullscreen content. " + remoteKey);
+                    attachLottieToInterCloseButton(activity, false);
                     EventTrackingHelper.logEvent(activity, remoteKey + "inter_preload_show_full_screen");
                     interCallback.onAdShowedFullScreenContent();
                     if (!activity.isFinishing() && !activity.isDestroyed() && isShowLoading && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
@@ -1405,6 +1409,7 @@ public class Admob {
                     public void onAdShowedFullScreenContent() {
                         // Called when ad is shown.
                         Log.d(TAG, "AdsSplash Inter preload: Ad showed fullscreen content.");
+                        attachLottieToInterCloseButton(activity, true);
                         interCallback.onAdShowedFullScreenContent();
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
@@ -1587,6 +1592,7 @@ public class Admob {
                 public void onAdShowedFullScreenContent() {
                     // Called when ad is shown.
                     Log.d(TAG, "INTER: Ad showed fullscreen content. " + remoteKey);
+                    attachLottieToInterCloseButton(activity, true);
                     interCallback.onAdShowedFullScreenContent();
                     if (!activity.isFinishing() && !activity.isDestroyed() && isShowLoading && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                         dismissLoadingDialog();
@@ -1739,6 +1745,7 @@ public class Admob {
                         // Called when ad is shown.
                         Log.d(TAG, "SPLASH: Ad showed fullscreen content.");
                         mInterstitialAdSplash = null;
+                        attachLottieToInterCloseButton(activity, true);
                         interCallback.onAdShowedFullScreenContent();
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
@@ -1889,6 +1896,7 @@ public class Admob {
                         // Called when ad is shown.
                         Log.d(TAG, "SPLASH: Ad showed fullscreen content.");
                         mInterstitialAdSplash = null;
+                        attachLottieToInterCloseButton(activity, true);
                         interCallback.onAdShowedFullScreenContent();
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
@@ -2021,6 +2029,7 @@ public class Admob {
                     public void onAdShowedFullScreenContent() {
                         // Called when ad is shown.
                         Log.d(TAG, "SPLASH: Ad showed fullscreen content.");
+                        attachLottieToInterCloseButton(activity, true);
                         interCallback.onAdShowedFullScreenContent();
                         if (!activity.isFinishing() && !activity.isDestroyed() && loadingAdsDialog != null && loadingAdsDialog.isShowing()) {
                             dismissLoadingDialog();
@@ -3250,6 +3259,22 @@ public class Admob {
             }
         });
         return adView;
+    }
+
+    private void attachLottieToInterCloseButton(Activity activity, boolean isSplash) {
+        if (activity == null) return;
+        boolean showLottieSplash = AsyncSplash.Companion.getInstance().getShowLottieCloseInterSplash();
+        boolean showLottieAll = AsyncSplash.Companion.getInstance().getShowLottieCloseAllInter();
+
+        boolean shouldAttach = isSplash ? showLottieSplash : showLottieAll;
+        if (!shouldAttach) {
+            Log.d(TAG, "attachLottieToInterCloseButton: disabled by AsyncSplash config. isSplash=" + isSplash + ", showLottieSplash=" + showLottieSplash + ", showLottieAll=" + showLottieAll);
+            return;
+        }
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            InterHelper.attachLottieToCloseButton(activity, 0);
+        }, AsyncSplash.Companion.getInstance().getTimeAppearLottieClose());
     }
 
     private void applyTechForCollapseBanner(String collapseTypeClose, long valueCountDownOrCountClick) {

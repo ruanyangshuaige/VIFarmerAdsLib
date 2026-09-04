@@ -137,6 +137,11 @@ class AsyncSplash {
     //Delay time show X button native_after_inter
     private var timeShowXButtonNativeAfterInter = 3000
 
+    //Attach Lottie close button configuration
+    private var showLottieCloseInterSplash = false
+    private var showLottieCloseAllInter = false
+    private var timeAppearLottieClose = 3L
+
     fun normalizeFirebaseEventName(input: String): String {
         if (input.isBlank()) return DEFAULT_EVENT_NAME
 
@@ -251,6 +256,9 @@ class AsyncSplash {
         this.isShowNativeAfterInter = false
         this.isUseNativeSplash = false
         this.timeShowXButtonNativeAfterInter = 3000
+        this.showLottieCloseInterSplash = false
+        this.showLottieCloseAllInter = false
+        this.timeAppearLottieClose = 0L
     }
 
     fun setTimeOutCallSplashAds(timeOutCallSplashAds: Int) {
@@ -315,6 +323,30 @@ class AsyncSplash {
 
     fun setKeyAdsInterSplash(keyAdsInterSplash: String) {
         this.keyAdsInterSplash = keyAdsInterSplash
+    }
+
+    fun setShowLottieCloseInterSplash(showLottieCloseInterSplash: Boolean) {
+        this.showLottieCloseInterSplash = showLottieCloseInterSplash
+    }
+
+    fun getShowLottieCloseInterSplash(): Boolean {
+        return this.showLottieCloseInterSplash
+    }
+
+    fun setShowLottieCloseAllInter(showLottieCloseAllInter: Boolean) {
+        this.showLottieCloseAllInter = showLottieCloseAllInter
+    }
+
+    fun getShowLottieCloseAllInter(): Boolean {
+        return this.showLottieCloseAllInter
+    }
+
+    fun setTimeAppearLottieClose(timeAppearLottieClose: Long) {
+        this.timeAppearLottieClose = timeAppearLottieClose * 1000L
+    }
+
+    fun getTimeAppearLottieClose(): Long {
+        return this.timeAppearLottieClose
     }
 
     fun getKeyAdsInterSplash(): String {
