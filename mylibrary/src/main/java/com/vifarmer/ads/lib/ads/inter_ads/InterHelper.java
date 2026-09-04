@@ -100,15 +100,10 @@ public class InterHelper {
 
         try {
             View closeView = closeInfo.view;
-            int resId = lottieRawRes;
-            if (resId == 0) {
-                resId = activity.getResources().getIdentifier("hand_focus", "raw", activity.getPackageName());
-            }
+            int resId = (lottieRawRes != 0) ? lottieRawRes : com.vifarmer.ads.lib.R.raw.hand_focus;
 
             LottieAnimationView lottieView = new LottieAnimationView(activity);
-            if (resId != 0) {
-                lottieView.setAnimation(resId);
-            }
+            lottieView.setAnimation(resId);
             lottieView.setRepeatCount(LottieDrawable.INFINITE);
             lottieView.playAnimation();
             lottieView.setClickable(false);

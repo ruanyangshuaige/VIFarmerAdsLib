@@ -120,7 +120,7 @@ dependencies {
     //
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.10.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.10.0'
-    implementation 'com.airbnb.android:lottie:6.7.1'
+    api 'com.airbnb.android:lottie:6.7.1'
     //billing
     implementation "com.android.billingclient:billing:9.0.0"
 }

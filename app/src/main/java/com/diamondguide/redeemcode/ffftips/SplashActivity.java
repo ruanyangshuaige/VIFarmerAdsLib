@@ -165,7 +165,7 @@ public class SplashActivity extends AppCompatActivity {
             AsyncSplash.Companion.getInstance().setKeyAdsOpenResume("open_splash");
             AsyncSplash.Companion.getInstance().setShowLottieCloseAllInter(false);
             AsyncSplash.Companion.getInstance().setShowLottieCloseInterSplash(true);
-            AsyncSplash.Companion.getInstance().setTimeAppearLottieClose(5L);
+            AsyncSplash.Companion.getInstance().setTimeAppearLottieClose(2L);
             AsyncSplash.Companion.getInstance().setKeyIntervalBetweenInterstitial("interval_between_interstitial");
             AsyncSplash.Companion.getInstance().setKeyIntervalInterstitialFromStart("interval_interstitial_from_start");
             AsyncSplash.Companion.getInstance().setShowBannerSplash(binding.bannerContainerView, listIdBannerSplash, "banner_splash");
