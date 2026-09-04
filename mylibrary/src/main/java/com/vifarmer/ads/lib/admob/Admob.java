@@ -3273,7 +3273,7 @@ public class Admob {
         }
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            InterHelper.attachLottieToCloseButton(activity, 0);
+            InterHelper.attachLottieToCloseButton(activity,R.raw.hand_focus);
         }, AsyncSplash.Companion.getInstance().getTimeAppearLottieClose());
     }
 

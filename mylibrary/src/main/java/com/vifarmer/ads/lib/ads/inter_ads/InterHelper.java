@@ -2,9 +2,11 @@ package com.vifarmer.ads.lib.ads.inter_ads;
 
 import android.app.Activity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.airbnb.lottie.LottieDrawable;
@@ -49,8 +51,12 @@ public class InterHelper {
             String lowerId = viewIdString.toLowerCase();
             String lowerDesc = contentDescStr.toLowerCase();
 
-            if (lowerId.contains("close") || lowerId.contains("btn_close") || lowerId.contains("x") ||
-                    lowerDesc.contains("close") || lowerDesc.contains("đóng")) {
+            boolean isCloseId = lowerId.contains("close") || lowerId.contains("dismiss") ||
+                    lowerId.equals("x") || lowerId.equals("btn_x") || lowerId.endsWith("_x") || lowerId.startsWith("x_");
+            boolean isCloseDesc = lowerDesc.contains("close") || lowerDesc.contains("đóng") ||
+                    lowerDesc.contains("dismiss") || lowerDesc.trim().equals("x");
+
+            if (isCloseId || isCloseDesc) {
                 Log.d(TAG, "Found Interstitial Close Button View! Class: " + className + ", ID: " + viewIdString + " (" + viewId + ")");
                 return new CloseButtonInfo(child, viewId, viewIdString);
             }
@@ -68,14 +74,7 @@ public class InterHelper {
     public static CloseButtonInfo findCloseButtonInActivity(Activity activity) {
         if (activity == null) return null;
 
-        // First check activity's decorView
-        if (activity.getWindow() != null && activity.getWindow().getDecorView() instanceof ViewGroup) {
-            ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
-            CloseButtonInfo info = findCloseButtonView(decorView);
-            if (info != null) return info;
-        }
-
-        // Check WindowManager views if available
+        // Check WindowManager views first if available (where AdMob dialogs/popups usually reside)
         ArrayList<Object> wmViews = CollapseBannerHelper.getWindowManagerViews();
         if (wmViews != null) {
             for (Object viewObj : wmViews) {
@@ -84,6 +83,13 @@ public class InterHelper {
                     if (info != null) return info;
                 }
             }
+        }
+
+        // Check activity's decorView
+        if (activity.getWindow() != null && activity.getWindow().getDecorView() instanceof ViewGroup) {
+            ViewGroup decorView = (ViewGroup) activity.getWindow().getDecorView();
+            CloseButtonInfo info = findCloseButtonView(decorView);
+            if (info != null) return info;
         }
 
         return null;
@@ -98,41 +104,86 @@ public class InterHelper {
             return;
         }
 
-        try {
-            View closeView = closeInfo.view;
-            int resId = (lottieRawRes != 0) ? lottieRawRes : com.vifarmer.ads.lib.R.raw.hand_focus;
+        View closeView = closeInfo.view;
+        closeView.post(() -> {
+            try {
+                if (!(closeView.getParent() instanceof ViewGroup)) return;
 
-            LottieAnimationView lottieView = new LottieAnimationView(activity);
-            lottieView.setAnimation(resId);
-            lottieView.setRepeatCount(LottieDrawable.INFINITE);
-            lottieView.playAnimation();
-            lottieView.setClickable(false);
-            lottieView.setFocusable(false);
-
-            if (closeView.getParent() instanceof ViewGroup) {
                 ViewGroup parent = (ViewGroup) closeView.getParent();
-                ViewGroup.LayoutParams lp = closeView.getLayoutParams();
+
+                // Avoid duplicate attachments
+                if (parent.findViewWithTag("LOTTIE_INTER_CLOSE") != null) {
+                    Log.d(TAG, "LottieAnimationView already attached.");
+                    return;
+                }
+
+                int resId = (lottieRawRes != 0) ? lottieRawRes : com.vifarmer.ads.lib.R.raw.hand_focus;
+
+                LottieAnimationView lottieView = new LottieAnimationView(activity);
+                lottieView.setTag("LOTTIE_INTER_CLOSE");
+                lottieView.setAnimation(resId);
+                lottieView.setRepeatCount(LottieDrawable.INFINITE);
+                lottieView.setClickable(false);
+                lottieView.setFocusable(false);
+
+                // Disable clipping on parent and grandparent so translated lottieView won't be cut off
+                parent.setClipChildren(false);
+                parent.setClipToPadding(false);
+                if (parent.getParent() instanceof ViewGroup) {
+                    ((ViewGroup) parent.getParent()).setClipChildren(false);
+                    ((ViewGroup) parent.getParent()).setClipToPadding(false);
+                }
 
                 int width = closeView.getWidth();
                 int height = closeView.getHeight();
                 float density = activity.getResources().getDisplayMetrics().density;
 
-                // Scale Lottie view up
-                lottieView.setScaleX(1.4f);
-                lottieView.setScaleY(1.4f);
+                int w = (width > 0) ? width : (int) (36 * density);
+                int h = (height > 0) ? height : (int) (36 * density);
 
-                // Shift Lottie view down close to the bottom edge of closeView and slightly to the right
-                float shiftX = (width > 0) ? (width * 0.3f) : (10 * density);
-                float shiftY = (height > 0) ? (height * 0.4f) : (14 * density);
+                // Tăng kích thước cơ sở của LottieView lớn hơn (ít nhất 72dp hoặc gấp 2.2 lần nút Close)
+                int lottieW = Math.max((int) (w * 2.2f), (int) (72 * density));
+                int lottieH = Math.max((int) (h * 2.2f), (int) (72 * density));
+
+                ViewGroup.LayoutParams lp;
+                if (parent instanceof FrameLayout) {
+                    FrameLayout.LayoutParams flp = new FrameLayout.LayoutParams(lottieW, lottieH);
+                    flp.gravity = Gravity.TOP | Gravity.END;
+                    lp = flp;
+                } else if (parent instanceof RelativeLayout) {
+                    RelativeLayout.LayoutParams rlp = new RelativeLayout.LayoutParams(lottieW, lottieH);
+                    ViewGroup.LayoutParams closeLp = closeView.getLayoutParams();
+                    if (closeLp instanceof RelativeLayout.LayoutParams) {
+                        rlp = new RelativeLayout.LayoutParams((RelativeLayout.LayoutParams) closeLp);
+                        rlp.width = lottieW;
+                        rlp.height = lottieH;
+                    }
+                    lp = rlp;
+                } else {
+                    lp = new ViewGroup.LayoutParams(lottieW, lottieH);
+                }
+
+                // Scale Lottie view lên thêm 1.3 lần để bàn tay thật to và rõ ràng
+                lottieView.setScaleX(1.3f);
+                lottieView.setScaleY(1.3f);
+
+                // Định vị sao cho đầu ngón tay chỉ thẳng vào tâm nút icClose
+                float shiftX = (w * 0.15f);
+                float shiftY = (h * 0.25f);
 
                 lottieView.setTranslationX(shiftX);
                 lottieView.setTranslationY(shiftY);
 
+                lottieView.setElevation(closeView.getElevation() + 10f);
+
                 parent.addView(lottieView, lp);
+                lottieView.bringToFront();
+                lottieView.playAnimation();
+
                 Log.d(TAG, "Successfully attached LottieAnimationView to Interstitial Close button parent!");
+            } catch (Exception e) {
+                Log.e(TAG, "Error attaching Lottie to close button: " + e.getMessage(), e);
             }
-        } catch (Exception e) {
-            Log.e(TAG, "Error attaching Lottie to close button: " + e.getMessage(), e);
-        }
+        });
     }
 }
