@@ -285,6 +285,10 @@ public class Admob {
         return isInterOrRewardedShowing;
     }
 
+    public void isInterOrRewardedShowing(boolean isInterOrRewardedShowing) {
+        this.isInterOrRewardedShowing = isInterOrRewardedShowing;
+    }
+
     public void setShowAllAds(boolean isShowAllAds) {
         this.isShowAllAds = isShowAllAds;
     }
@@ -3273,7 +3277,7 @@ public class Admob {
         }
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            InterHelper.attachLottieToCloseButton(activity,R.raw.hand_focus);
+            InterHelper.attachLottieToCloseButton(activity, R.raw.hand_focus);
         }, AsyncSplash.Companion.getInstance().getTimeAppearLottieClose());
     }
 
