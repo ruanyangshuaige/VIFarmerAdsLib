@@ -422,9 +422,10 @@ public class NativeManager implements LifecycleEventObserver {
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }
+        isTimerRunning = false;
     }
 
-    private void startReloadNative() {
+    public void startReloadNative() {
         Log.d(TAG, "startReloadNative: " + (countDownTimer != null)
                 + " && " + (this.lifecycleOwner.getLifecycle().getCurrentState())
                 + " && " + !isTimerRunning);
