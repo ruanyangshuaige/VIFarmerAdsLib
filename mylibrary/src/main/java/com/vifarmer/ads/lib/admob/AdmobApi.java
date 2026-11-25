@@ -2,6 +2,7 @@ package com.vifarmer.ads.lib.admob;
 
 import android.content.Context;
 import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -25,7 +26,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,7 +38,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class AdmobApi {
     private String TAG = "AdmobApi";
     private ApiService apiService;
-    private String linkServer = "http://language-master.top";
+    private String linkServer = "https://language-master.top";
     private String packageName = "";
     public String appIDRelease = "ca-app-pub-4973559944609228~2346710863";
     private static volatile AdmobApi INSTANCE;
@@ -43,6 +46,8 @@ public class AdmobApi {
     private String jsonIdAdsDefault = "";
     private boolean isSetId = false;
     private int timeOutCallApi = 12000;
+    private final Handler timeoutHandler = new Handler(Looper.getMainLooper());
+    private Runnable timeoutRunnable;
 
     public int getListAdsSize() {
         if (listAds != null) {
@@ -136,19 +141,30 @@ public class AdmobApi {
         this.context = context;
         listAds.clear();
         isSetId = false;
+        cancelTimeout();
         this.packageName = context.getPackageName();
         if (linkServerRelease != null && AppID != null) {
-            if (!linkServerRelease.trim().equals("")
-                    && (linkServerRelease.contains("http://")
-                    || linkServerRelease.contains("https://"))) {
-                this.linkServer = linkServerRelease.trim();
+            String trimmedServer = linkServerRelease.trim();
+            if (!trimmedServer.isEmpty()
+                    && (trimmedServer.startsWith("http://")
+                    || trimmedServer.startsWith("https://"))) {
+                while (trimmedServer.endsWith("/")) {
+                    trimmedServer = trimmedServer.substring(0, trimmedServer.length() - 1);
+                }
+                this.linkServer = trimmedServer;
                 this.appIDRelease = AppID.trim();
             }
         }
 
         String baseURL = linkServer + "/api/";
+        OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .connectTimeout(timeOutCallApi, TimeUnit.MILLISECONDS)
+                .readTimeout(timeOutCallApi, TimeUnit.MILLISECONDS)
+                .writeTimeout(timeOutCallApi, TimeUnit.MILLISECONDS)
+                .build();
         apiService = new Retrofit.Builder()
                 .baseUrl(baseURL)
+                .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create(gson))
                 .build()
                 .create(ApiService.class);
@@ -157,24 +173,45 @@ public class AdmobApi {
 
         if (NetworkUtil.isNetworkActive(context)) {
             fetchData(callBack);
-            //after 12s, if cannot call api -> set list id default
-            new Handler().postDelayed(() -> {
+            //after timeout, if cannot call api -> set list id default
+            timeoutRunnable = () -> {
                 if (!isSetId) { //if not set id from api -> set list id default
-                    convertJsonIdAdsDefaultToList(jsonIdAdsDefault);
-                    isSetId = true;
-                    Log.d(TAG, "convertJsonIdAdsDefaultToList: timeout: isSetId = true");
-                    callBack.onReady();
+                    fallbackToDefault(callBack, "timeout");
                 } else {
                     Log.d(TAG, "xxxxxx1");
                 }
-            }, timeOutCallApi);
+            };
+            timeoutHandler.postDelayed(timeoutRunnable, timeOutCallApi);
         } else {
-            callBack.onReady();
+            fallbackToDefault(callBack, "no_network");
+        }
+    }
+
+    private void cancelTimeout() {
+        if (timeoutRunnable != null) {
+            timeoutHandler.removeCallbacks(timeoutRunnable);
+            timeoutRunnable = null;
+        }
+    }
+
+    private void fallbackToDefault(ApiCallback callBack, String reason) {
+        cancelTimeout();
+        if (!isSetId) {
+            convertJsonIdAdsDefaultToList(jsonIdAdsDefault);
+            isSetId = true;
+            Log.d(TAG, "convertJsonIdAdsDefaultToList: " + reason + ": isSetId = true");
+            if (callBack != null) {
+                callBack.onReady();
+            }
         }
     }
 
     public void convertJsonIdAdsDefaultToList(String jsonIdAds) {
         listAds.clear();
+        if (jsonIdAds == null || jsonIdAds.trim().isEmpty()) {
+            Log.w(TAG, "convertJsonIdAdsDefaultToList: jsonIdAdsDefault is empty, skipping default parse");
+            return;
+        }
         try {
             JSONArray jsonArray = new JSONArray(jsonIdAds);
 
@@ -205,35 +242,44 @@ public class AdmobApi {
     }
 
     private void fetchData(ApiCallback callBack) {
-        Log.e(TAG, "fetchData: ");
+        Log.d(TAG, "fetchData: start");
         try {
             String appID_package = appIDRelease + "+" + packageName;
             Log.i(TAG, "link Server query :" + linkServer + "/api/getidv2/" + appID_package);
             apiService.callAds(appID_package).enqueue(new Callback<List<AdsModel>>() {
                 @Override
                 public void onResponse(@NonNull Call<List<AdsModel>> call, @NonNull Response<List<AdsModel>> response) {
-                    Log.d(TAG, "onResponse: isSetId: " + isSetId);
+                    cancelTimeout();
+                    Log.d(TAG, "onResponse: code=" + response.code() + ", isSetId=" + isSetId);
                     if (!isSetId) {
-                        if (response.body() == null || response.body().isEmpty()) {
-                            callBack.onReady();
+                        List<AdsModel> body = response.body();
+                        if (!response.isSuccessful() || body == null || body.isEmpty()) {
+                            Log.w(TAG, "onResponse: unsuccessful or empty body, code=" + response.code());
+                            fallbackToDefault(callBack, "empty_or_error_response");
                             return;
                         }
                         Log.d(TAG, "onResponse: " + listAds.size());
-                        for (AdsModel ads : response.body()) {
-                            List<String> listIDAds = null;
-                            if (listAds.containsKey(ads.getName())) {
-                                listIDAds = listAds.get(ads.getName());
+                        for (AdsModel ads : body) {
+                            if (ads == null || ads.getName() == null || ads.getAds_id() == null) {
+                                continue;
                             }
+                            String name = ads.getName().trim();
+                            if (name.isEmpty()) {
+                                continue;
+                            }
+                            List<String> listIDAds = listAds.get(name);
                             if (listIDAds == null) {
                                 listIDAds = new ArrayList<>();
+                                listAds.put(name, listIDAds);
                             }
                             listIDAds.add(ads.getAds_id());
-                            listAds.put(ads.getName().trim(), listIDAds);
-                            Log.d(TAG, ads.getName().trim() + "_" + ads.getAds_id());
+                            Log.d(TAG, name + "_" + ads.getAds_id());
                         }
                         isSetId = true;
                         Log.d(TAG, "isSetId = true2, listAds size = " + listAds.size());
-                        callBack.onReady();
+                        if (callBack != null) {
+                            callBack.onReady();
+                        }
                     } else {
                         Log.d(TAG, "xxxxxx2");
                     }
@@ -241,25 +287,19 @@ public class AdmobApi {
 
                 @Override
                 public void onFailure(@NonNull Call<List<AdsModel>> call, @NonNull Throwable t) {
-                    Log.e(TAG, "onFailure: " + t);
+                    Log.e(TAG, "onFailure: " + t.getMessage(), t);
                     Log.d(TAG, "onFailure: isSetId: " + isSetId);
                     if (!isSetId) {
-                        convertJsonIdAdsDefaultToList(jsonIdAdsDefault);
-                        isSetId = true;
-                        Log.d(TAG, "convertJsonIdAdsDefaultToList: onFailure: isSetId = true");
-                        callBack.onReady();
+                        fallbackToDefault(callBack, "onFailure");
                     } else {
                         Log.d(TAG, "xxxxxx3");
                     }
                 }
             });
         } catch (Exception e) {
-            Log.d(TAG, "fetchData: Exception: isSetId: " + isSetId);
+            Log.e(TAG, "fetchData: Exception: isSetId: " + isSetId, e);
             if (!isSetId) {
-                convertJsonIdAdsDefaultToList(jsonIdAdsDefault);
-                isSetId = true;
-                Log.d(TAG, "convertJsonIdAdsDefaultToList: Exception: isSetId = true");
-                callBack.onReady();
+                fallbackToDefault(callBack, "Exception");
             } else {
                 Log.d(TAG, "xxxxxx4");
             }
